@@ -33,7 +33,7 @@ namespace NuGet.PackageManagement.UI
         /// <summary>
         /// Perform a user action.
         /// </summary>
-        /// <remarks>This needs to be called from a background thread. It may hang on the UI thread.</remarks>
+        /// <remarks>This needs to be called from a background thread. It may stop responding on the UI thread.</remarks>
         public async Task PerformAction(INuGetUI uiService, UserAction userAction, DependencyObject windowOwner, CancellationToken token)
         {
             try
