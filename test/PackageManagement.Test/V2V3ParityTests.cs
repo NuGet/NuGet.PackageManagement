@@ -82,6 +82,8 @@ namespace NuGet.Test
 
             var comparer = new NuGetProjectActionComparer();
 
+            //TODO: remove all these when we understand what has goen wrong here...
+
             bool f = comparer.Equals(xyExcept.First(), yxExcept.First());
 
             int xh = comparer.GetHashCode(xyExcept.First());
@@ -106,6 +108,7 @@ namespace NuGet.Test
             combinery.AddObject(VersionComparer.Default.GetHashCode(yxExcept.First().PackageIdentity.Version));
             var ych = combinery.CombinedHash;
 
+            //BUGBUG: all the component parts appear equal and yet they are not equal - very odd
 
             return (xyExcept.Count() == 0 && yxExcept.Count() == 0);
         }
@@ -120,6 +123,7 @@ namespace NuGet.Test
             var actionsV2 = await PacManCleanInstall(TestSourceRepositoryUtility.CreateV2OnlySourceRepositoryProvider(), target);
             var actionsV3 = await PacManCleanInstall(TestSourceRepositoryUtility.CreateV3OnlySourceRepositoryProvider(), target);
 
+            //TODO: uncomment this line when we have fixed the comparison logic
             //Assert.True(Compare(actionsV2, actionsV3));
         }
 

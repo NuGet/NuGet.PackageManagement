@@ -2847,11 +2847,10 @@ namespace NuGet.Test
             // Arrange
             var packages = new List<SourcePackageDependencyInfo>
             {
-                new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                //TODO: include these two lines when the resolver understands "favor listed" semantics
-                //new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, false),
-                //new SourcePackageDependencyInfo("b", new NuGetVersion(2, 0, 0), new PackageDependency[] { }, false),
-                new SourcePackageDependencyInfo("b", new NuGetVersion(3, 0, 0), new PackageDependency[] { }, true),
+                new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, false, null),
+                new SourcePackageDependencyInfo("b", new NuGetVersion(2, 0, 0), new PackageDependency[] { }, false, null),
+                new SourcePackageDependencyInfo("b", new NuGetVersion(3, 0, 0), new PackageDependency[] { }, true, null),
             };
 
             var resourceProviders = new List<Lazy<INuGetResourceProvider>>();
@@ -2912,11 +2911,11 @@ namespace NuGet.Test
             // Arrange
             var packages = new List<SourcePackageDependencyInfo>
             {
-                new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                new SourcePackageDependencyInfo("a", new NuGetVersion(2, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true),
-                new SourcePackageDependencyInfo("b", new NuGetVersion(2, 0, 0), new PackageDependency[] { }, true),
-                new SourcePackageDependencyInfo("b", new NuGetVersion(3, 0, 0), new PackageDependency[] { }, true),
+                new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                new SourcePackageDependencyInfo("a", new NuGetVersion(2, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null),
+                new SourcePackageDependencyInfo("b", new NuGetVersion(2, 0, 0), new PackageDependency[] { }, true, null),
+                new SourcePackageDependencyInfo("b", new NuGetVersion(3, 0, 0), new PackageDependency[] { }, true, null),
             };
 
             var resourceProviders = new List<Lazy<INuGetResourceProvider>>();

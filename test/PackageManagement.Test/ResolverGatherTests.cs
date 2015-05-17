@@ -441,17 +441,17 @@ namespace NuGet.Test
 
             var packagesA = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("d", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("e", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true),
-                    new SourcePackageDependencyInfo("notpartofthis", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("d", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("e", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null),
+                    new SourcePackageDependencyInfo("notpartofthis", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var packagesB = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("d", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("e", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("notpartofthis2", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("d", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("e", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("notpartofthis2", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var providersA = new List<Lazy<INuGetResourceProvider>>();
@@ -499,17 +499,17 @@ namespace NuGet.Test
 
             var packagesA = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("d", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("e", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true),
-                    new SourcePackageDependencyInfo("d", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("e", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("notpartofthis", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("d", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("e", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null),
+                    new SourcePackageDependencyInfo("d", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("e", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("notpartofthis", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var packagesB = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("notpartofthis2", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("notpartofthis2", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var providersC = new List<Lazy<INuGetResourceProvider>>();
@@ -557,16 +557,16 @@ namespace NuGet.Test
 
             var packagesA = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("d", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("e", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true),
-                    new SourcePackageDependencyInfo("notpartofthis", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("d", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("e", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null),
+                    new SourcePackageDependencyInfo("notpartofthis", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var packagesB = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true),
-                    new SourcePackageDependencyInfo("notpartofthis2", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null),
+                    new SourcePackageDependencyInfo("notpartofthis2", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var providersA = new List<Lazy<INuGetResourceProvider>>();
@@ -612,17 +612,17 @@ namespace NuGet.Test
 
             var packages1 = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true)
+                    new SourcePackageDependencyInfo("c", new NuGetVersion(1, 0, 0), new PackageDependency[] { }, true, null)
                 };
 
             var packages2 = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true)
+                    new SourcePackageDependencyInfo("b", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("c", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null)
                 };
 
             var packages3 = new List<SourcePackageDependencyInfo>
                 {
-                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true)
+                    new SourcePackageDependencyInfo("a", new NuGetVersion(1, 0, 0), new[] { new PackageDependency("b", new VersionRange(new NuGetVersion(1, 0, 0))) }, true, null)
                 };
 
             var providers1 = new List<Lazy<INuGetResourceProvider>>();
@@ -667,7 +667,7 @@ namespace NuGet.Test
         private static SourcePackageDependencyInfo CreateDependencyInfo(string id, string version, params string[] dependencyIds)
         {
             return new SourcePackageDependencyInfo(CreatePackage(id, version),
-                dependencyIds.Select(depId => new PackageDependency(depId, new VersionRange(NuGetVersion.Parse("1.0.0")))), true);
+                dependencyIds.Select(depId => new PackageDependency(depId, new VersionRange(NuGetVersion.Parse("1.0.0")))), true, null);
         }
 
         private static PackageIdentity CreatePackage(string id, string version)
@@ -688,7 +688,7 @@ namespace NuGet.Test
 
         public override Task<Tuple<bool, INuGetResource>> TryCreate(SourceRepository source, CancellationToken token)
         {
-            var nuGetResource = new TestDependencyInfo(Packages);
+            var nuGetResource = new TestDependencyInfo(source, Packages);
             return Task.FromResult(new Tuple<bool, INuGetResource>(true, nuGetResource));
         }
     }
@@ -698,18 +698,20 @@ namespace NuGet.Test
     /// </summary>
     internal class TestDependencyInfo : DependencyInfoResource
     {
+        public SourceRepository Source { get; set; }
+
         public List<SourcePackageDependencyInfo> Packages { get; set; }
 
-        public TestDependencyInfo(List<SourcePackageDependencyInfo> packages)
+        public TestDependencyInfo(SourceRepository source, List<SourcePackageDependencyInfo> packages)
         {
+            Source = source;
             Packages = packages;
         }
 
         public override Task<SourcePackageDependencyInfo> ResolvePackage(PackageIdentity package, NuGetFramework projectFramework, CancellationToken token)
         {
             var matchingPackage = Packages.FirstOrDefault(e => PackageIdentity.Comparer.Equals(e, package));
-
-            return Task.FromResult<SourcePackageDependencyInfo>(matchingPackage);
+            return Task.FromResult<SourcePackageDependencyInfo>(ApplySource(matchingPackage));
         }
 
         public override Task<IEnumerable<SourcePackageDependencyInfo>> ResolvePackages(string packageId, NuGetFramework projectFramework, CancellationToken token)
@@ -718,7 +720,22 @@ namespace NuGet.Test
                 Packages.Where(e => StringComparer.OrdinalIgnoreCase.Equals(packageId, e.Id)),
                 PackageIdentity.Comparer);
 
-            return Task.FromResult<IEnumerable<SourcePackageDependencyInfo>>(results);
+            return Task.FromResult<IEnumerable<SourcePackageDependencyInfo>>(results.Select(p => ApplySource(p)));
+        }
+
+        SourcePackageDependencyInfo ApplySource(SourcePackageDependencyInfo original)
+        {
+            if (original == null)
+            {
+                return null;
+            }
+
+            return new SourcePackageDependencyInfo(
+                original.Id,
+                original.Version,
+                original.Dependencies,
+                original.Listed,
+                Source);
         }
     }
 
@@ -760,7 +777,7 @@ namespace NuGet.Test
                 .Where(p =>
                     p.Id.Equals(packageId, StringComparison.InvariantCultureIgnoreCase)
                     && (!p.Version.IsPrerelease || includePrerelease)
-                    && (p.IsListed || includeUnlisted))
+                    && (p.Listed || includeUnlisted))
                 .Select(p => p.Version)
             );
         }
@@ -770,7 +787,7 @@ namespace NuGet.Test
             return Task.FromResult(Packages
                 .Exists(p => 
                     ((PackageIdentity)p).Equals(identity) 
-                    && (p.IsListed || includeUnlisted))
+                    && (p.Listed || includeUnlisted))
             );
         }
 
@@ -780,7 +797,7 @@ namespace NuGet.Test
                 .Exists((p) => 
                     p.Id.Equals(packageId, StringComparison.InvariantCultureIgnoreCase)
                     && (!p.Version.IsPrerelease || includePrerelease)
-                    && (p.IsListed || includeUnlisted))
+                    && (p.Listed || includeUnlisted))
             );
         }
 
