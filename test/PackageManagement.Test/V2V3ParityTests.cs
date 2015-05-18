@@ -80,37 +80,48 @@ namespace NuGet.Test
                 _output.WriteLine("{0} {1}", entry.NuGetProjectActionType, entry.PackageIdentity.ToString());
             }
 
-            var comparer = new NuGetProjectActionComparer();
+            var xyCount = xyExcept.Count();
+            var yxCount = yxExcept.Count();
 
-            //TODO: remove all these when we understand what has goen wrong here...
+            if (xyCount == 0 && yxCount == 0)
+            {
+                return true;
+            }
+            else
+            {
+                var comparer = new NuGetProjectActionComparer();
 
-            bool f = comparer.Equals(xyExcept.First(), yxExcept.First());
+                //TODO: remove all these when we understand what has goen wrong here...
 
-            int xh = comparer.GetHashCode(xyExcept.First());
-            int yh = comparer.GetHashCode(yxExcept.First());
+                bool f = comparer.Equals(xyExcept.First(), yxExcept.First());
 
-            int xph = xyExcept.First().PackageIdentity.GetHashCode();
-            int yph = yxExcept.First().PackageIdentity.GetHashCode();
+                int xh = comparer.GetHashCode(xyExcept.First());
+                int yh = comparer.GetHashCode(yxExcept.First());
 
-            int xpih = xyExcept.First().PackageIdentity.Id.ToUpperInvariant().GetHashCode();
-            int ypih = yxExcept.First().PackageIdentity.Id.ToUpperInvariant().GetHashCode();
+                int xph = xyExcept.First().PackageIdentity.GetHashCode();
+                int yph = yxExcept.First().PackageIdentity.GetHashCode();
 
-            int xpvh = VersionComparer.Default.GetHashCode(xyExcept.First().PackageIdentity.Version);
-            int ypvh = VersionComparer.Default.GetHashCode(yxExcept.First().PackageIdentity.Version);
+                int xpih = xyExcept.First().PackageIdentity.Id.ToUpperInvariant().GetHashCode();
+                int ypih = yxExcept.First().PackageIdentity.Id.ToUpperInvariant().GetHashCode();
 
-            var combinerx = new HashCodeCombiner();
-            combinerx.AddObject(xyExcept.First().PackageIdentity.Id.ToUpperInvariant());
-            combinerx.AddObject(VersionComparer.Default.GetHashCode(xyExcept.First().PackageIdentity.Version));
-            var xch = combinerx.CombinedHash;
+                int xpvh = VersionComparer.Default.GetHashCode(xyExcept.First().PackageIdentity.Version);
+                int ypvh = VersionComparer.Default.GetHashCode(yxExcept.First().PackageIdentity.Version);
 
-            var combinery = new HashCodeCombiner();
-            combinery.AddObject(yxExcept.First().PackageIdentity.Id.ToUpperInvariant());
-            combinery.AddObject(VersionComparer.Default.GetHashCode(yxExcept.First().PackageIdentity.Version));
-            var ych = combinery.CombinedHash;
+                var combinerx = new HashCodeCombiner();
+                combinerx.AddObject(xyExcept.First().PackageIdentity.Id.ToUpperInvariant());
+                combinerx.AddObject(VersionComparer.Default.GetHashCode(xyExcept.First().PackageIdentity.Version));
+                var xch = combinerx.CombinedHash;
 
-            //BUGBUG: all the component parts appear equal and yet they are not equal - very odd
+                var combinery = new HashCodeCombiner();
+                combinery.AddObject(yxExcept.First().PackageIdentity.Id.ToUpperInvariant());
+                combinery.AddObject(VersionComparer.Default.GetHashCode(yxExcept.First().PackageIdentity.Version));
+                var ych = combinery.CombinedHash;
 
-            return (xyExcept.Count() == 0 && yxExcept.Count() == 0);
+                return false;
+
+                //BUGBUG: all the component parts appear equal and yet they are not equal - very odd
+                //return (xyExcept.Count() == 0 && yxExcept.Count() == 0);
+            }
         }
 
         [Fact]
@@ -124,7 +135,7 @@ namespace NuGet.Test
             var actionsV3 = await PacManCleanInstall(TestSourceRepositoryUtility.CreateV3OnlySourceRepositoryProvider(), target);
 
             //TODO: uncomment this line when we have fixed the comparison logic
-            //Assert.True(Compare(actionsV2, actionsV3));
+            Assert.True(Compare(actionsV2, actionsV3));
         }
 
         class NuGetProjectActionComparer : IEqualityComparer<NuGetProjectAction>
@@ -140,6 +151,7 @@ namespace NuGet.Test
             public int GetHashCode(NuGetProjectAction obj)
             {
                 var combiner = new HashCodeCombiner();
+                //combiner.AddObject(new PackageIdentity(obj.PackageIdentity.Id, obj.PackageIdentity.Version).GetHashCode());
                 combiner.AddObject(obj.PackageIdentity.GetHashCode());
                 combiner.AddObject(obj.NuGetProjectActionType);
                 return combiner.CombinedHash;
