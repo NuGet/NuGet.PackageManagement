@@ -2941,14 +2941,6 @@ namespace NuGet.Test
             var msBuildNuGetProject = new MSBuildNuGetProject(msBuildNuGetProjectSystem, packagesFolderPath, randomPackagesConfigFolderPath);
             var target = "a";
 
-            // Pre-Assert
-            // Check that the packages.config file does not exist
-            Assert.False(File.Exists(randomPackagesConfigPath));
-            // Check that there are no packages returned by PackagesConfigProject
-            var packagesInPackagesConfig = (await msBuildNuGetProject.PackagesConfigNuGetProject.GetInstalledPackagesAsync(token)).ToList();
-            Assert.Equal(0, packagesInPackagesConfig.Count);
-            Assert.Equal(0, msBuildNuGetProjectSystem.References.Count);
-
             // Act
             var nugetProjectActions = await nuGetPackageManager.PreviewInstallPackageAsync(msBuildNuGetProject, target,
                 new ResolutionContext(), new TestNuGetProjectContext(), sourceRepositoryProvider.GetRepositories().First(), null, token);
