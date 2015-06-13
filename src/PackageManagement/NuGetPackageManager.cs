@@ -40,6 +40,8 @@ namespace NuGet.PackageManagement
 
         private ISettings Settings { get; }
 
+        private IDeleteOnRestartManager DeleteOnRestartManager { get; }
+
         public FolderNuGetProject PackagesFolderNuGetProject { get; set; }
 
         public SourceRepository PackagesFolderSourceRepository { get; set; }
@@ -47,7 +49,10 @@ namespace NuGet.PackageManagement
         /// <summary>
         /// To construct a NuGetPackageManager that does not need a SolutionManager like NuGet.exe
         /// </summary>
-        public NuGetPackageManager(ISourceRepositoryProvider sourceRepositoryProvider, ISettings settings, string packagesFolderPath)
+        public NuGetPackageManager(
+            ISourceRepositoryProvider sourceRepositoryProvider,
+            ISettings settings,
+            string packagesFolderPath)
         {
             if (sourceRepositoryProvider == null)
             {
@@ -68,6 +73,7 @@ namespace NuGet.PackageManagement
             Settings = settings;
 
             InitializePackagesFolderInfo(packagesFolderPath);
+            DeleteOnRestartManager = new DeleteOnRestartManager(PackagesFolderNuGetProject);
         }
 
         /// <summary>
@@ -95,6 +101,7 @@ namespace NuGet.PackageManagement
             SolutionManager = solutionManager;
 
             InitializePackagesFolderInfo(PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings));
+            DeleteOnRestartManager = new DeleteOnRestartManager(PackagesFolderNuGetProject);
         }
 
         private void InitializePackagesFolderInfo(string packagesFolderPath)
@@ -476,7 +483,7 @@ namespace NuGet.PackageManagement
                 // Remove versions that do not satisfy 'allowedVersions' attribute in packages.config, if any
                 prunedAvailablePackages = PrunePackageTree.PruneDisallowedVersions(prunedAvailablePackages, projectInstalledPackageReferences);
 
-                // Step-2 : Call IPackageResolver.Resolve to get new list of installed packages                
+                // Step-2 : Call IPackageResolver.Resolve to get new list of installed packages
                 nuGetProjectContext.Log(MessageLevel.Info, Strings.AttemptingToResolveDependenciesForMultiplePackages);
 
                 var packageResolver = new PackageResolver();
@@ -553,8 +560,8 @@ namespace NuGet.PackageManagement
             var resolverPackages = dependencyInfoFromPackagesFolder?.Select(package =>
                     new ResolverPackage(package.Id, package.Version, package.Dependencies, true, false));
 
-            // Use the resolver sort to find the order. Packages with no dependencies 
-            // come first, then each package that has satisfied dependencies. 
+            // Use the resolver sort to find the order. Packages with no dependencies
+            // come first, then each package that has satisfied dependencies.
             // Packages with missing dependencies will not be returned.
             if (resolverPackages != null)
             {
@@ -718,7 +725,7 @@ namespace NuGet.PackageManagement
                     nuGetProjectContext.Log(MessageLevel.Info, Strings.AttemptingToGatherDependencyInfo, packageIdentity, projectName, targetFramework);
 
                     var primaryPackages = new List<PackageIdentity> { packageIdentity };
-                    
+
                     var availablePackageDependencyInfoWithSourceSet = await ResolverGather.GatherPackageDependencyInfo(
                         primaryPackages,
                         oldListOfInstalledPackages,
@@ -746,8 +753,8 @@ namespace NuGet.PackageManagement
                     if (!resolutionContext.IncludePrerelease)
                     {
                         prunedAvailablePackages = PrunePackageTree.PrunePreleaseForStableTargets(
-                            prunedAvailablePackages, 
-                            packageTargetsForResolver, 
+                            prunedAvailablePackages,
+                            packageTargetsForResolver,
                             new [] { packageIdentity });
                     }
 
@@ -784,7 +791,7 @@ namespace NuGet.PackageManagement
                     }
 
                     // Step-3 : Get the list of nuGetProjectActions to perform, install/uninstall on the nugetproject
-                    // based on newPackages obtained in Step-2 and project.GetInstalledPackages                    
+                    // based on newPackages obtained in Step-2 and project.GetInstalledPackages
 
                     nuGetProjectContext.Log(MessageLevel.Info, Strings.ResolvingActionsToInstallPackage, packageIdentity);
                     var newPackagesToUninstall = new List<PackageIdentity>();
@@ -1147,7 +1154,23 @@ namespace NuGet.PackageManagement
                 // Also, always perform deletion of package directories, even in a rollback, so that there are no stale package directories
                 foreach (var packageWithDirectoryToBeDeleted in packageWithDirectoriesToBeDeleted)
                 {
-                    await DeletePackage(packageWithDirectoryToBeDeleted, nuGetProjectContext, token);
+                    try
+                    {
+                        await DeletePackage(packageWithDirectoryToBeDeleted, nuGetProjectContext, token);
+                    }
+                    finally
+                    {
+                        var packageDirectory =
+                               PackagesFolderNuGetProject.GetInstalledPath(packageWithDirectoryToBeDeleted);
+
+                        if (Directory.Exists(packageDirectory))
+                        {
+                            DeleteOnRestartManager.MarkPackageDirectoryForDeletion(
+                                packageWithDirectoryToBeDeleted,
+                                packageDirectory,
+                                nuGetProjectContext);
+                        }
+                    }
                 }
 
                 // Clear direct install
@@ -1217,7 +1240,7 @@ namespace NuGet.PackageManagement
 
             if (restoreResult.Success)
             {
-                // Write out project.json 
+                // Write out project.json
                 // This can be replaced with the PackageSpec writer once it has been added to the library
                 using (var writer = new StreamWriter(buildIntegratedProject.JsonConfigPath, append: false, encoding: Encoding.UTF8))
                 {
