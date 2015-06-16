@@ -43,8 +43,8 @@ namespace NuGet.PackageManagement.UI
 
             // Set DynamicResource binding in code
             // The reason we can't set it in XAML is that the VsBrushes class come from either
-            // Microsoft.VisualStudio.Shell.10 or Microsoft.VisualStudio.Shell.11 assembly,
-            // depending on whether NuGet runs inside VS10 or VS11.
+            // Microsoft.VisualStudio.Shell.12 or Microsoft.VisualStudio.Shell.14 assembly,
+            // depending on whether NuGet runs inside VS12 or VS14.
             RestartBar.SetResourceReference(Border.BackgroundProperty, VsBrushes.InfoBackgroundKey);
             RestartBar.SetResourceReference(Border.BorderBrushProperty, VsBrushes.ActiveBorderKey);
         }

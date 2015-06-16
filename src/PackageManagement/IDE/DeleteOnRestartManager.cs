@@ -14,6 +14,9 @@ using NuGet.Protocol.Core.Types;
 
 namespace NuGet.PackageManagement
 {
+    /// <summary>
+    /// Implements methods which mark partially deleted packages and deletes them.
+    /// </summary>
     public class DeleteOnRestartManager : IDeleteOnRestartManager
     {
         // The file extension to add to the empty files which will be placed adjacent to partially uninstalled package
@@ -27,6 +30,11 @@ namespace NuGet.PackageManagement
 
         public DeleteOnRestartManager(string folderPath)
         {
+            if (folderPath == null)
+            {
+                throw new ArgumentNullException(nameof(folderPath));
+            }
+
             PackagesFolderPath = folderPath;
         }
 
@@ -84,7 +92,8 @@ namespace NuGet.PackageManagement
                 return new List<string>();
             }
 
-            var candidates = FileSystemUtility.GetFiles(PackagesFolderPath, path: "", filter: DeletionMarkerFilter, recursive: false)
+            var candidates = FileSystemUtility
+                .GetFiles(PackagesFolderPath, path: "", filter: DeletionMarkerFilter, recursive: false)
                 // strip the DeletionMarkerFilter at the end of the path to get the package name.
                 .Select(path => Path.Combine(PackagesFolderPath, Path.ChangeExtension(path, null))).ToList();
 
@@ -116,8 +125,14 @@ namespace NuGet.PackageManagement
         /// if the directory does not contain any added or modified files.
         /// The package directory will be marked by an adjacent *directory name*.deleteme file.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to log an exception as a warning and move on")]
-        public void MarkPackageDirectoryForDeletion(PackageIdentity package, string packageRoot, INuGetProjectContext projectContext)
+        [SuppressMessage(
+            "Microsoft.Design",
+            "CA1031:DoNotCatchGeneralExceptionTypes",
+            Justification = "We want to log an exception as a warning and move on")]
+        public void MarkPackageDirectoryForDeletion(
+            PackageIdentity package,
+            string packageRoot,
+            INuGetProjectContext projectContext)
         {
             if (PackagesFolderPath == null)
             {
@@ -134,16 +149,24 @@ namespace NuGet.PackageManagement
             {
                 projectContext.Log(
                     MessageLevel.Warning,
-                    string.Format(CultureInfo.CurrentCulture, Strings.Warning_FailedToMarkPackageDirectoryForDeletion, packageRoot, e.Message));
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        Strings.Warning_FailedToMarkPackageDirectoryForDeletion,
+                        packageRoot,
+                        e.Message));
             }
         }
 
         /// <summary>
         /// Attempts to remove package directories that were unable to be fully deleted during the original uninstall.
-        /// These directories will be marked by an adjacent *directory name*.deleteme files in the local package repository.
+        /// These directories will be marked by an adjacent *directory name*.deleteme files in the local package
+        /// repository.
         /// If the directory removal is successful, the .deleteme file will also be removed.
         /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to log an exception as a warning and move on")]
+        [SuppressMessage(
+            "Microsoft.Design",
+            "CA1031:DoNotCatchGeneralExceptionTypes",
+            Justification = "We want to log an exception as a warning and move on")]
         public void DeleteMarkedPackageDirectories(INuGetProjectContext projectContext)
         {
             if (PackagesFolderPath == null)
@@ -171,7 +194,10 @@ namespace NuGet.PackageManagement
                         {
                             projectContext.Log(
                                 MessageLevel.Warning,
-                                string.Format(CultureInfo.CurrentCulture, Strings.Warning_FailedToDeleteMarkedPackageDirectory, package));
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    Strings.Warning_FailedToDeleteMarkedPackageDirectory,
+                                    package));
                         }
                     }
                 }
@@ -180,7 +206,10 @@ namespace NuGet.PackageManagement
             {
                 projectContext.Log(
                                MessageLevel.Warning,
-                               string.Format(CultureInfo.CurrentCulture, Strings.Warning_FailedToDeleteMarkedPackageDirectory, e.Message));
+                               string.Format(
+                                   CultureInfo.CurrentCulture,
+                                   Strings.Warning_FailedToDeleteMarkedPackageDirectory,
+                                   e.Message));
             }
         }
     }

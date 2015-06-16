@@ -374,7 +374,7 @@ namespace NuGet.PackageManagement.UI
 
         private void AddRestartRequestBar(IVsShell4 vsRestarter)
         {
-            if (Model.Context.PackageManager.DeleteOnRestartManager != null)
+            if (Model.Context.PackageManager.DeleteOnRestartManager != null && vsRestarter != null)
             {
                 _restartBar = new RestartRequestBar(Model.Context.PackageManager.DeleteOnRestartManager, vsRestarter);
                 _root.Children.Add(_restartBar);
@@ -387,8 +387,8 @@ namespace NuGet.PackageManagement.UI
             {
                 _restartBar.CleanUp();
 
-                // TODO: clean this up during dispose also
-                Model.Context.PackageRestoreManager.PackagesMissingStatusChanged -= packageRestoreManager_PackagesMissingStatusChanged;
+                Model.Context.PackageRestoreManager.PackagesMissingStatusChanged
+                    -= packageRestoreManager_PackagesMissingStatusChanged;
             }
         }
 
