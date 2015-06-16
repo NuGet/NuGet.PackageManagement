@@ -86,7 +86,7 @@ namespace StandaloneUI
 
             var model = new PackageManagerModel(uiController, context, isSolution: true);
             model.SolutionName = "test solution";
-            _packageManagerControl = new PackageManagerControl(model, _settings, new SimpleSearchBoxFactory());
+            _packageManagerControl = new PackageManagerControl(model, _settings, new SimpleSearchBoxFactory(), null);
             layoutGrid.Children.Add(_packageManagerControl);
         }
 

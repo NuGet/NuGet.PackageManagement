@@ -711,6 +711,24 @@ namespace NuGet.PackageManagement.UI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to One or more packages could not be completely uninstalled: {0}. Restart Visual Studio to finish uninstall..
+        /// </summary>
+        public static string RequestRestartToCompleteUninstall {
+            get {
+                return ResourceManager.GetString("RequestRestartToCompleteUninstall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart Now..
+        /// </summary>
+        public static string RestartButtonLabel {
+            get {
+                return ResourceManager.GetString("RestartButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Restore.
         /// </summary>
         public static string RestoreButtonLabel {

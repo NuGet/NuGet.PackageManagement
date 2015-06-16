@@ -21,29 +21,15 @@ namespace NuGet.PackageManagement
         private const string DeletionMarkerSuffix = ".deleteme";
         private const string DeletionMarkerFilter = "*" + DeletionMarkerSuffix;
 
-        private readonly FolderNuGetProject _folderNugetProject;
+        string _packagesFolderPath = null;
 
         private ISolutionManager SolutionManager { get; }
 
         private ISettings Settings { get; }
 
-        /// <summary>
-        /// Create a new instance of <see cref="DeleteOnRestartManager"/>.
-        /// </summary>
-        /// <param name="project"></param>
-        public DeleteOnRestartManager(NuGetProject project)
+        public DeleteOnRestartManager(string folderPath)
         {
-            _folderNugetProject = project as FolderNuGetProject;
-            if (_folderNugetProject == null)
-            {
-                _folderNugetProject = (project as MSBuildNuGetProject)?.FolderNuGetProject;
-            }
-
-            if (_folderNugetProject == null)
-            {
-                // TODO: should this throw? Replace with a proper message.
-                throw new ArgumentException("Unsupported projectType");
-            }
+            _packagesFolderPath = folderPath;
         }
 
         public DeleteOnRestartManager(
@@ -62,17 +48,25 @@ namespace NuGet.PackageManagement
 
             Settings = settings;
             SolutionManager = solutionManager;
-            var packagesFolderPath = PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings);
-            _folderNugetProject = new FolderNuGetProject(packagesFolderPath);
+
+            if (SolutionManager.SolutionDirectory != null)
+            {
+                _packagesFolderPath = PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings);
+            }
         }
 
-        public IList<string> GetPackageDirectoriesMarkedForDeletion()
+        public IReadOnlyList<string> GetPackageDirectoriesMarkedForDeletion()
         {
-            var candidates = FileSystemUtility.GetFiles(_folderNugetProject.Root, path: "", filter: DeletionMarkerFilter, recursive: false)
-                // strip the DeletionMarkerFilter at the end of the path to get the package name.
-                .Select(path => Path.ChangeExtension(path, null)).ToList();
+            if (_packagesFolderPath == null)
+            {
+                return new List<string>();
+            }
 
-            var filesWithoutFolders = candidates.Where(path => !File.Exists(path));
+            var candidates = FileSystemUtility.GetFiles(_packagesFolderPath, path: "", filter: DeletionMarkerFilter, recursive: false)
+                // strip the DeletionMarkerFilter at the end of the path to get the package name.
+                .Select(path => Path.Combine(_packagesFolderPath, Path.ChangeExtension(path, null))).ToList();
+
+            var filesWithoutFolders = candidates.Where(path => !Directory.Exists(path));
             foreach (var directory in filesWithoutFolders)
             {
                 File.Delete(directory + DeletionMarkerSuffix);
@@ -89,6 +83,11 @@ namespace NuGet.PackageManagement
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to log an exception as a warning and move on")]
         public void MarkPackageDirectoryForDeletion(PackageIdentity package, string packageRoot, INuGetProjectContext projectContext)
         {
+            if (_packagesFolderPath == null)
+            {
+                return;
+            }
+
             try
             {
                 using (FileSystemUtility.CreateFile(packageRoot + DeletionMarkerSuffix, projectContext))
@@ -109,35 +108,34 @@ namespace NuGet.PackageManagement
         /// If the directory removal is successful, the .deleteme file will also be removed.
         /// </summary>
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to log an exception as a warning and move on")]
-        public async Task DeleteMarkedPackageDirectories(INuGetProjectContext projectContext)
+        public void DeleteMarkedPackageDirectories(INuGetProjectContext projectContext)
         {
+            if (_packagesFolderPath == null)
+            {
+                return;
+            }
+
             try
             {
-                var packages = await _folderNugetProject.GetInstalledPackagesAsync(CancellationToken.None);
+                var packages = GetPackageDirectoriesMarkedForDeletion();
                 foreach (var package in packages)
                 {
-                    var path = _folderNugetProject.GetInstalledPath(package.PackageIdentity);
-                    if (!FileSystemUtility.FileExists(path, DeletionMarkerSuffix))
-                    {
-                        continue;
-                    }
-
                     try
                     {
-                        await _folderNugetProject.DeletePackage(package.PackageIdentity, projectContext, CancellationToken.None);
+                        FileSystemUtility.DeleteDirectorySafe(package, true, projectContext);
                     }
                     finally
                     {
-                        if (!Directory.Exists(path))
+                        if (!Directory.Exists(package))
                         {
-                            var deleteMeFilePath = Path.Combine(Path.GetDirectoryName(path), DeletionMarkerSuffix);
+                            var deleteMeFilePath = Path.Combine(package, DeletionMarkerSuffix);
                             FileSystemUtility.DeleteFile(deleteMeFilePath, projectContext);
                         }
                         else
                         {
                             projectContext.Log(
                                 MessageLevel.Warning,
-                                string.Format(CultureInfo.CurrentCulture, Strings.Warning_FailedToDeleteMarkedPackageDirectory, path));
+                                string.Format(CultureInfo.CurrentCulture, Strings.Warning_FailedToDeleteMarkedPackageDirectory, package));
                         }
                     }
                 }

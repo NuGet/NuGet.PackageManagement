@@ -164,6 +164,9 @@
     <Compile Include="Common\NuGetEvent.cs" />
     <Compile Include="Common\NuGetEventTrigger.cs" />
     <Compile Include="Common\OptionsPage.cs" />
+    <Compile Include="Common\RestartRequestBar.xaml.cs">
+      <DependentUpon>RestartRequestBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Common\PackageRestoreBar.xaml.cs">
       <DependentUpon>PackageRestoreBar.xaml</DependentUpon>
     </Compile>
@@ -277,11 +280,15 @@
     <Compile Include="Xamls\UpdateAvailableIndicator.xaml.cs">
       <DependentUpon>UpdateAvailableIndicator.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Xamls\Resources.xaml.cs" >
-	  <DependentUpon>Resources.xaml</DependentUpon>
-	</Compile>
+    <Compile Include="Xamls\Resources.xaml.cs">
+      <DependentUpon>Resources.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Common\RestartRequestBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Common\PackageRestoreBar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

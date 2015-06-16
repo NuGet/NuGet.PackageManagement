@@ -36,6 +36,8 @@ namespace NuGet.PackageManagement.UI
 
         private PackageRestoreBar _restoreBar;
 
+        private RestartRequestBar _restartBar;
+
         private readonly IVsWindowSearchHost _windowSearchHost;
         private readonly IVsWindowSearchHostFactory _windowSearchHostFactory;
 
@@ -50,7 +52,8 @@ namespace NuGet.PackageManagement.UI
         public PackageManagerControl(
             PackageManagerModel model,
             ISettings nugetSettings,
-            IVsWindowSearchHostFactory searchFactory)
+            IVsWindowSearchHostFactory searchFactory,
+            IVsShell4 vsShell)
         {
             _uiDispatcher = Dispatcher.CurrentDispatcher;
             Model = model;
@@ -76,6 +79,8 @@ namespace NuGet.PackageManagement.UI
             }
 
             AddRestoreBar();
+
+            AddRestartRequestBar(vsShell);
 
             _packageDetail.Control = this;
             _packageDetail.Visibility = Visibility.Hidden;
@@ -364,6 +369,15 @@ namespace NuGet.PackageManagement.UI
 
                 // TODO: clean this up during dispose also
                 Model.Context.PackageRestoreManager.PackagesMissingStatusChanged -= packageRestoreManager_PackagesMissingStatusChanged;
+            }
+        }
+
+        private void AddRestartRequestBar(IVsShell4 vsRestarter)
+        {
+            if (Model.Context.PackageManager.DeleteOnRestartManager != null)
+            {
+                _restartBar = new RestartRequestBar(Model.Context.PackageManager.DeleteOnRestartManager, vsRestarter);
+                _root.Children.Add(_restartBar);
             }
         }
 

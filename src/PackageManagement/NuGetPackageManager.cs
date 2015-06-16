@@ -40,7 +40,7 @@ namespace NuGet.PackageManagement
 
         private ISettings Settings { get; }
 
-        private IDeleteOnRestartManager DeleteOnRestartManager { get; }
+        public IDeleteOnRestartManager DeleteOnRestartManager { get; }
 
         public FolderNuGetProject PackagesFolderNuGetProject { get; set; }
 
@@ -73,7 +73,7 @@ namespace NuGet.PackageManagement
             Settings = settings;
 
             InitializePackagesFolderInfo(packagesFolderPath);
-            DeleteOnRestartManager = new DeleteOnRestartManager(PackagesFolderNuGetProject);
+            DeleteOnRestartManager = new DeleteOnRestartManager(packagesFolderPath);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace NuGet.PackageManagement
             SolutionManager = solutionManager;
 
             InitializePackagesFolderInfo(PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings));
-            DeleteOnRestartManager = new DeleteOnRestartManager(PackagesFolderNuGetProject);
+            DeleteOnRestartManager = new DeleteOnRestartManager(settings, solutionManager);
         }
 
         private void InitializePackagesFolderInfo(string packagesFolderPath)
@@ -1154,15 +1154,15 @@ namespace NuGet.PackageManagement
                 // Also, always perform deletion of package directories, even in a rollback, so that there are no stale package directories
                 foreach (var packageWithDirectoryToBeDeleted in packageWithDirectoriesToBeDeleted)
                 {
+                    // Get the path before attempting to delete, to prevent errors due to parital delete.
+                    var packageDirectory =
+                              PackagesFolderNuGetProject.GetInstalledPath(packageWithDirectoryToBeDeleted);
                     try
                     {
                         await DeletePackage(packageWithDirectoryToBeDeleted, nuGetProjectContext, token);
                     }
                     finally
                     {
-                        var packageDirectory =
-                               PackagesFolderNuGetProject.GetInstalledPath(packageWithDirectoryToBeDeleted);
-
                         if (Directory.Exists(packageDirectory))
                         {
                             DeleteOnRestartManager.MarkPackageDirectoryForDeletion(
