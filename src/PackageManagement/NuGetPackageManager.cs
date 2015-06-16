@@ -1154,15 +1154,16 @@ namespace NuGet.PackageManagement
                 // Also, always perform deletion of package directories, even in a rollback, so that there are no stale package directories
                 foreach (var packageWithDirectoryToBeDeleted in packageWithDirectoriesToBeDeleted)
                 {
-                    // Get the path before attempting to delete, to prevent errors due to parital delete.
-                    var packageDirectory =
-                              PackagesFolderNuGetProject.GetInstalledPath(packageWithDirectoryToBeDeleted);
                     try
                     {
                         await DeletePackage(packageWithDirectoryToBeDeleted, nuGetProjectContext, token);
                     }
                     finally
                     {
+                        // Cannot use PackagesFolderNuGetProject.GetInstalledPath because that requires the package
+                        // file to be present.
+                        var packageDirectory =
+                            Path.Combine(PackagesFolderNuGetProject.Root, packageWithDirectoryToBeDeleted.ToString());
                         if (Directory.Exists(packageDirectory))
                         {
                             DeleteOnRestartManager.MarkPackageDirectoryForDeletion(

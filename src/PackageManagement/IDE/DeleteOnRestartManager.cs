@@ -14,22 +14,20 @@ using NuGet.Protocol.Core.Types;
 
 namespace NuGet.PackageManagement
 {
-    public sealed class DeleteOnRestartManager : IDeleteOnRestartManager
+    public class DeleteOnRestartManager : IDeleteOnRestartManager
     {
         // The file extension to add to the empty files which will be placed adjacent to partially uninstalled package
         // directories marking them for removal the next time the solution is opened.
         private const string DeletionMarkerSuffix = ".deleteme";
         private const string DeletionMarkerFilter = "*" + DeletionMarkerSuffix;
 
-        string _packagesFolderPath = null;
+        private string _packagesFolderPath = null;
 
-        private ISolutionManager SolutionManager { get; }
-
-        private ISettings Settings { get; }
+        public event EventHandler<PackagesMarkedForDeletionEventArgs> PackagesMarkedForDeletionFound;
 
         public DeleteOnRestartManager(string folderPath)
         {
-            _packagesFolderPath = folderPath;
+            PackagesFolderPath = folderPath;
         }
 
         public DeleteOnRestartManager(
@@ -48,23 +46,47 @@ namespace NuGet.PackageManagement
 
             Settings = settings;
             SolutionManager = solutionManager;
+        }
 
-            if (SolutionManager.SolutionDirectory != null)
+        public ISolutionManager SolutionManager { get; }
+
+        public ISettings Settings { get; }
+
+        public string PackagesFolderPath
+        {
+            get
             {
-                _packagesFolderPath = PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings);
+                // This can only be null when intialized during startup and the solution is not loaded at construction.
+                // Try to get the packages folder Path now.
+                if (_packagesFolderPath == null)
+                {
+                    if (SolutionManager?.SolutionDirectory != null)
+                    {
+                        _packagesFolderPath =
+                            PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings);
+                    }
+                }
+
+                return _packagesFolderPath;
+            }
+
+            set
+            {
+                _packagesFolderPath = value;
             }
         }
 
         public IReadOnlyList<string> GetPackageDirectoriesMarkedForDeletion()
         {
-            if (_packagesFolderPath == null)
+
+            if (PackagesFolderPath == null)
             {
                 return new List<string>();
             }
 
-            var candidates = FileSystemUtility.GetFiles(_packagesFolderPath, path: "", filter: DeletionMarkerFilter, recursive: false)
+            var candidates = FileSystemUtility.GetFiles(PackagesFolderPath, path: "", filter: DeletionMarkerFilter, recursive: false)
                 // strip the DeletionMarkerFilter at the end of the path to get the package name.
-                .Select(path => Path.Combine(_packagesFolderPath, Path.ChangeExtension(path, null))).ToList();
+                .Select(path => Path.Combine(PackagesFolderPath, Path.ChangeExtension(path, null))).ToList();
 
             var filesWithoutFolders = candidates.Where(path => !Directory.Exists(path));
             foreach (var directory in filesWithoutFolders)
@@ -76,6 +98,20 @@ namespace NuGet.PackageManagement
         }
 
         /// <summary>
+        /// Checks for any pacakge directories that are pending to be deleted and raises the
+        /// <see cref="PackagesMarkedForDeletionFound"/> event.
+        /// </summary>
+        public virtual void CheckAndRaisePackageDirectoriesMarkedForDeletion()
+        {
+            var packages = GetPackageDirectoriesMarkedForDeletion();
+            if (packages.Any() && PackagesMarkedForDeletionFound != null)
+            {
+                var eventArgs = new PackagesMarkedForDeletionEventArgs(packages);
+                PackagesMarkedForDeletionFound(this, eventArgs);
+            }
+        }
+
+        /// <summary>
         /// Marks package directory for future removal if it was not fully deleted during the normal uninstall process
         /// if the directory does not contain any added or modified files.
         /// The package directory will be marked by an adjacent *directory name*.deleteme file.
@@ -83,7 +119,7 @@ namespace NuGet.PackageManagement
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to log an exception as a warning and move on")]
         public void MarkPackageDirectoryForDeletion(PackageIdentity package, string packageRoot, INuGetProjectContext projectContext)
         {
-            if (_packagesFolderPath == null)
+            if (PackagesFolderPath == null)
             {
                 return;
             }
@@ -110,7 +146,7 @@ namespace NuGet.PackageManagement
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We want to log an exception as a warning and move on")]
         public void DeleteMarkedPackageDirectories(INuGetProjectContext projectContext)
         {
-            if (_packagesFolderPath == null)
+            if (PackagesFolderPath == null)
             {
                 return;
             }
@@ -128,7 +164,7 @@ namespace NuGet.PackageManagement
                     {
                         if (!Directory.Exists(package))
                         {
-                            var deleteMeFilePath = Path.Combine(package, DeletionMarkerSuffix);
+                            var deleteMeFilePath = package.TrimEnd('\\') + DeletionMarkerSuffix;
                             FileSystemUtility.DeleteFile(deleteMeFilePath, projectContext);
                         }
                         else

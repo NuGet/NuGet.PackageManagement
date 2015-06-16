@@ -381,6 +381,17 @@ namespace NuGet.PackageManagement.UI
             }
         }
 
+        private void RemoveRestartBar()
+        {
+            if (_restartBar != null)
+            {
+                _restartBar.CleanUp();
+
+                // TODO: clean this up during dispose also
+                Model.Context.PackageRestoreManager.PackagesMissingStatusChanged -= packageRestoreManager_PackagesMissingStatusChanged;
+            }
+        }
+
         private void packageRestoreManager_PackagesMissingStatusChanged(object sender, PackagesMissingStatusEventArgs e)
         {
             // TODO: PackageRestoreManager fires this event even when solution is closed.
@@ -818,6 +829,7 @@ namespace NuGet.PackageManagement.UI
         {
             _windowSearchHost.TerminateSearch();
             RemoveRestoreBar();
+            RemoveRestartBar();
         }
 
         private void SuppressDisclaimerChecked(object sender, RoutedEventArgs e)
