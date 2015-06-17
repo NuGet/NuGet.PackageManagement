@@ -31,7 +31,7 @@ namespace NuGet.PackageManagement
         /// </summary>
         void MarkPackageDirectoryForDeletion(
             PackageIdentity package,
-            string packageRoot,
+            string packageDirectory,
             INuGetProjectContext projectContext);
 
         /// <summary>

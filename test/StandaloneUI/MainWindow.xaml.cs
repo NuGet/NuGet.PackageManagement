@@ -72,12 +72,10 @@ namespace StandaloneUI
 
             var projects = new[] { projectA, projectB };
 
-            var deleteOnRestartManager = new DeleteOnRestartManager(settings, testSolutionManager);
             var packageRestoreManager = new PackageRestoreManager(
                 repositoryProvider,
                 settings,
-                testSolutionManager,
-                deleteOnRestartManager);
+                testSolutionManager);
 
             var contextFactory = new StandaloneUIContextFactory(
                 repositoryProvider,
@@ -92,7 +90,8 @@ namespace StandaloneUI
 
             var model = new PackageManagerModel(uiController, context, isSolution: true);
             model.SolutionName = "test solution";
-            _packageManagerControl = new PackageManagerControl(model, _settings, new SimpleSearchBoxFactory(), null);
+            _packageManagerControl =
+                new PackageManagerControl(model, _settings, new SimpleSearchBoxFactory(), vsShell: null);
             layoutGrid.Children.Add(_packageManagerControl);
         }
 

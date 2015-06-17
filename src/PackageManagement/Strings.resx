@@ -258,13 +258,4 @@
   <data name="BuildIntegratedPackageRestoreFailed" xml:space="preserve">
     <value>Package restore failed for '{0}'.</value>
   </data>
-  <data name="Warning_FailedToDeleteMarkedPackageDirectory" xml:space="preserve">
-    <value>Failed to remove package directory '{0}' that was marked for deletion on Visual Studio restart.</value>
-  </data>
-    <data name="Warning_FailedToDeleteMarkedPackageDirectories" xml:space="preserve">
-    <value>Failed to remove package directories that were marked for deletion on Visual Studio restart: {0}</value>
-  </data>
-  <data name="Warning_FailedToMarkPackageDirectoryForDeletion" xml:space="preserve">
-    <value>Failed to mark package directory '{0}' for deletion on Visual Studio restart: {1}</value>
-  </data>
 </root>

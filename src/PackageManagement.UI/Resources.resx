@@ -435,7 +435,10 @@ Packages installed into Website projects will not be restored during build. Cons
   <data name="Text_NotAvailableInSource" xml:space="preserve">
     <value>Not available in this source</value>
   </data>
-  <data name="RequestRestartToCompleteUninstall" xml:space="preserve">
-    <value>One or more packages could not be completely uninstalled: {0}. Restart Visual Studio to finish uninstall.</value>
+  <data name="RequestRestartToCompleteUninstallMultiplePackages" xml:space="preserve">
+    <value>Multiple packages could not be completely uninstalled. Restart Visual Studio to finish uninstall.</value>
+  </data>
+  <data name="RequestRestartToCompleteUninstallSinglePackage" xml:space="preserve">
+    <value>The package '{0}' could not be completely uninstalled. Restart Visual Studio to finish uninstall.</value>
   </data>
 </root>

@@ -52,8 +52,7 @@ namespace NuGet.PackageManagement
         public NuGetPackageManager(
             ISourceRepositoryProvider sourceRepositoryProvider,
             ISettings settings,
-            string packagesFolderPath,
-            IDeleteOnRestartManager deleteOnRestartManager)
+            string packagesFolderPath)
         {
             if (sourceRepositoryProvider == null)
             {
@@ -74,7 +73,6 @@ namespace NuGet.PackageManagement
             Settings = settings;
 
             InitializePackagesFolderInfo(packagesFolderPath);
-            DeleteOnRestartManager = deleteOnRestartManager;
         }
 
         /// <summary>
@@ -99,6 +97,11 @@ namespace NuGet.PackageManagement
             if (solutionManager == null)
             {
                 throw new ArgumentNullException(nameof(solutionManager));
+            }
+
+            if (deleteOnRestartManager == null)
+            {
+                throw new ArgumentNullException(nameof(deleteOnRestartManager));
             }
 
             SourceRepositoryProvider = sourceRepositoryProvider;
@@ -1165,19 +1168,20 @@ namespace NuGet.PackageManagement
                     }
                     finally
                     {
-                        // Cannot use PackagesFolderNuGetProject.GetInstalledPath because that requires the package
-                        // file to be present.
-                        var packageDirectory =
-                            Path.Combine(PackagesFolderNuGetProject.Root, packageWithDirectoryToBeDeleted.ToString());
-                        if (Directory.Exists(packageDirectory))
+                        if (DeleteOnRestartManager != null)
                         {
-                            DeleteOnRestartManager.MarkPackageDirectoryForDeletion(
-                                packageWithDirectoryToBeDeleted,
-                                packageDirectory,
-                                nuGetProjectContext);
+                            var packageDirectory =
+                                PackagesFolderNuGetProject.GetInstalledPackageDirectory(packageWithDirectoryToBeDeleted);
+                            if (Directory.Exists(packageDirectory))
+                            {
+                                DeleteOnRestartManager.MarkPackageDirectoryForDeletion(
+                                    packageWithDirectoryToBeDeleted,
+                                    packageDirectory,
+                                    nuGetProjectContext);
 
-                            // Raise the event to notify listners to update the UI etc.
-                            DeleteOnRestartManager.CheckAndRaisePackageDirectoriesMarkedForDeletion();
+                                // Raise the event to notify listners to update the UI etc.
+                                DeleteOnRestartManager.CheckAndRaisePackageDirectoriesMarkedForDeletion();
+                            }
                         }
                     }
                 }

@@ -475,33 +475,6 @@ namespace NuGet.PackageManagement {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to remove package directories that were marked for deletion on Visual Studio restart: {0}.
-        /// </summary>
-        internal static string Warning_FailedToDeleteMarkedPackageDirectories {
-            get {
-                return ResourceManager.GetString("Warning_FailedToDeleteMarkedPackageDirectories", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to remove package directory &apos;{0}&apos; that was marked for deletion on Visual Studio restart..
-        /// </summary>
-        internal static string Warning_FailedToDeleteMarkedPackageDirectory {
-            get {
-                return ResourceManager.GetString("Warning_FailedToDeleteMarkedPackageDirectory", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to mark package directory &apos;{0}&apos; for deletion on Visual Studio restart: {1}.
-        /// </summary>
-        internal static string Warning_FailedToMarkPackageDirectoryForDeletion {
-            get {
-                return ResourceManager.GetString("Warning_FailedToMarkPackageDirectoryForDeletion", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Install failed. Rolling back....
         /// </summary>
         internal static string Warning_RollingBack {

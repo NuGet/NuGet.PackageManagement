@@ -711,11 +711,20 @@ namespace NuGet.PackageManagement.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to One or more packages could not be completely uninstalled: {0}. Restart Visual Studio to finish uninstall..
+        ///   Looks up a localized string similar to Multiple packages could not be completely uninstalled. Restart Visual Studio to finish uninstall..
         /// </summary>
-        public static string RequestRestartToCompleteUninstall {
+        public static string RequestRestartToCompleteUninstallMultiplePackages {
             get {
-                return ResourceManager.GetString("RequestRestartToCompleteUninstall", resourceCulture);
+                return ResourceManager.GetString("RequestRestartToCompleteUninstallMultiplePackages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The package &apos;{0}&apos; could not be completely uninstalled. Restart Visual Studio to finish uninstall..
+        /// </summary>
+        public static string RequestRestartToCompleteUninstallSinglePackage {
+            get {
+                return ResourceManager.GetString("RequestRestartToCompleteUninstallSinglePackage", resourceCulture);
             }
         }
         

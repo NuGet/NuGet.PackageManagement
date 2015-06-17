@@ -34,7 +34,7 @@ namespace NuGet.Test
             var testSolutionManager = new TestSolutionManager();
             var testSettings = new NullSettings();
             var token = CancellationToken.None;
-            var deleteOnRestartManger = new DeleteOnRestartManager(testSettings, testSolutionManager);
+            var deleteOnRestartManger = new TestDeleteOnRestartManager();
             var nuGetPackageManager = new NuGetPackageManager(
                 sourceRepositoryProvider,
                 testSettings,

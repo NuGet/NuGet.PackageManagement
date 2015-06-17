@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:resx="clr-namespace:NuGet.PackageManagement.UI">
     <Border x:Name="RestartBar" VerticalAlignment="Center" Visibility="Collapsed" BorderThickness="0,0,0,1">
-        <Grid Margin="0,4,0,6">
+        <Grid Margin="1,4,1,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />

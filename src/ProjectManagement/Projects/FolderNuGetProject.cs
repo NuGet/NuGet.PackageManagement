@@ -156,6 +156,11 @@ namespace NuGet.ProjectManagement
             return PackagePathResolver.GetInstalledPath(packageIdentity) ?? string.Empty;
         }
 
+        public string GetInstalledPackageDirectory(PackageIdentity packageIdentity)
+        {
+            return PackagePathResolver.GetInstalledPackageFolder(packageIdentity);
+        }
+
         public async Task<bool> DeletePackage(PackageIdentity packageIdentity,
             INuGetProjectContext nuGetProjectContext,
             CancellationToken token)

@@ -58,7 +58,7 @@ namespace NuGet.PackageManagement.UI
             object source,
             PackagesMarkedForDeletionEventArgs eventArgs)
         {
-            var packageDirectoriesMarkedForDeletion = eventArgs.MarkedForDeletion;
+            var packageDirectoriesMarkedForDeletion = eventArgs.DirectoriesMarkedForDeletion;
             UpdateRestartBar(packageDirectoriesMarkedForDeletion);
         }
 
@@ -67,12 +67,20 @@ namespace NuGet.PackageManagement.UI
             NuGetUIThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
                 await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                if (packagesMarkedForDeletion.Any())
+                var count = packagesMarkedForDeletion.Count;
+                if (count == 1)
                 {
                     var message = string.Format(
                        CultureInfo.CurrentCulture,
-                       UI.Resources.RequestRestartToCompleteUninstall,
-                       string.Join(", ", packagesMarkedForDeletion));
+                       UI.Resources.RequestRestartToCompleteUninstallSinglePackage, packagesMarkedForDeletion[0]);
+                    RequestRestartMessage.Text = message;
+                    RestartBar.Visibility = Visibility.Visible;
+                }
+                else if (count > 1)
+                {
+                    var message = string.Format(
+                       CultureInfo.CurrentCulture,
+                       UI.Resources.RequestRestartToCompleteUninstallMultiplePackages);
                     RequestRestartMessage.Text = message;
                     RestartBar.Visibility = Visibility.Visible;
                 }

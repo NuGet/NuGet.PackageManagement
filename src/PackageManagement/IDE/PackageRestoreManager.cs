@@ -25,7 +25,6 @@ namespace NuGet.PackageManagement
 
         private ISourceRepositoryProvider SourceRepositoryProvider { get; }
         private ISolutionManager SolutionManager { get; }
-        private IDeleteOnRestartManager DeleteOnRestartManager { get; }
         private ISettings Settings { get; }
 
         public event EventHandler<PackagesMissingStatusEventArgs> PackagesMissingStatusChanged;
@@ -35,8 +34,7 @@ namespace NuGet.PackageManagement
         public PackageRestoreManager(
             ISourceRepositoryProvider sourceRepositoryProvider,
             ISettings settings,
-            ISolutionManager solutionManager,
-            IDeleteOnRestartManager deleteOnRestartManager)
+            ISolutionManager solutionManager)
         {
             if (sourceRepositoryProvider == null)
             {
@@ -53,15 +51,9 @@ namespace NuGet.PackageManagement
                 throw new ArgumentNullException(nameof(solutionManager));
             }
 
-            if (deleteOnRestartManager == null)
-            {
-                throw new ArgumentNullException(nameof(deleteOnRestartManager));
-            }
-
             SourceRepositoryProvider = sourceRepositoryProvider;
             Settings = settings;
             SolutionManager = solutionManager;
-            DeleteOnRestartManager = deleteOnRestartManager;
         }
 
         [Obsolete("Enabling and querying legacy package restore is not supported in VS 2015 RTM.")]
@@ -247,8 +239,7 @@ namespace NuGet.PackageManagement
             return new NuGetPackageManager(
                 SourceRepositoryProvider,
                 Settings,
-                packagesFolderPath,
-                DeleteOnRestartManager);
+                packagesFolderPath);
         }
 
         public Task<PackageRestoreResult> RestoreMissingPackagesAsync(NuGetPackageManager nuGetPackageManager,

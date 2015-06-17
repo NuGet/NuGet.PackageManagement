@@ -49,7 +49,7 @@ namespace StandaloneUI
                 throw new ArgumentNullException("projects");
             }
 
-            var deleteOnRestartManager = new DeleteOnRestartManager(_settings, _solutionManager);
+            var deleteOnRestartManager = new Test.Utility.TestDeleteOnRestartManager();
             var packageManager =
                 new NuGetPackageManager(_repositoryProvider, _settings, _solutionManager, deleteOnRestartManager);
             var actionEngine = new UIActionEngine(_repositoryProvider, packageManager);

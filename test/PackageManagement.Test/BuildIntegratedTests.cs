@@ -29,7 +29,7 @@ namespace NuGet.Test
             var sourceRepositoryProvider = TestSourceRepositoryUtility.CreateV2OnlySourceRepositoryProvider();
             var testSolutionManager = new TestSolutionManager();
             var testSettings = new NullSettings();
-            var deleteOnRestartManager = new DeleteOnRestartManager(testSettings, testSolutionManager);
+            var deleteOnRestartManager = new TestDeleteOnRestartManager();
             var nuGetPackageManager = new NuGetPackageManager(
                 sourceRepositoryProvider,
                 testSettings,
@@ -73,7 +73,7 @@ namespace NuGet.Test
             var sourceRepositoryProvider = TestSourceRepositoryUtility.CreateV2OnlySourceRepositoryProvider();
             var testSolutionManager = new TestSolutionManager();
             var testSettings = new NullSettings();
-            var deleteOnRestartManager = new DeleteOnRestartManager(testSettings, testSolutionManager);
+            var deleteOnRestartManager = new TestDeleteOnRestartManager();
             var nuGetPackageManager = new NuGetPackageManager(
                 sourceRepositoryProvider,
                 testSettings,
@@ -125,7 +125,7 @@ namespace NuGet.Test
             var sourceRepositoryProvider = TestSourceRepositoryUtility.CreateV2OnlySourceRepositoryProvider();
             var testSolutionManager = new TestSolutionManager();
             var testSettings = new NullSettings();
-            var deleteOnRestartManager = new DeleteOnRestartManager(testSettings, testSolutionManager);
+            var deleteOnRestartManager = new TestDeleteOnRestartManager();
             var nuGetPackageManager = new NuGetPackageManager(
                 sourceRepositoryProvider,
                 testSettings,
@@ -172,7 +172,7 @@ namespace NuGet.Test
             var sourceRepositoryProvider = TestSourceRepositoryUtility.CreateV2OnlySourceRepositoryProvider();
             var testSolutionManager = new TestSolutionManager();
             var testSettings = new NullSettings();
-            var deleteOnRestartManager = new DeleteOnRestartManager(testSettings, testSolutionManager);
+            var deleteOnRestartManager = new TestDeleteOnRestartManager();
             var nuGetPackageManager = new NuGetPackageManager(
                 sourceRepositoryProvider,
                 testSettings,
@@ -221,7 +221,7 @@ namespace NuGet.Test
             var sourceRepositoryProvider = TestSourceRepositoryUtility.CreateV2OnlySourceRepositoryProvider();
             var testSolutionManager = new TestSolutionManager();
             var testSettings = new NullSettings();
-            var deleteOnRestartManager = new DeleteOnRestartManager(testSettings, testSolutionManager);
+            var deleteOnRestartManager = new TestDeleteOnRestartManager();
             var nuGetPackageManager = new NuGetPackageManager(
                 sourceRepositoryProvider,
                 testSettings,
