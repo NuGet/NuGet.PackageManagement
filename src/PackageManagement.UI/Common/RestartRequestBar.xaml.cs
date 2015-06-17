@@ -20,12 +20,9 @@ namespace NuGet.PackageManagement.UI
     /// </summary>
     public partial class RestartRequestBar : UserControl, INuGetProjectContext
     {
-
         private readonly IDeleteOnRestartManager _deleteOnRestartManager;
 
         private readonly IVsShell4 _vsRestarter;
-
-        private Dispatcher UIDispatcher { get; }
 
         public PackageExtractionContext PackageExtractionContext { get; set; }
 
@@ -36,10 +33,18 @@ namespace NuGet.PackageManagement.UI
         public RestartRequestBar(IDeleteOnRestartManager deleteOnRestartManager, IVsShell4 vsRestarter)
         {
             InitializeComponent();
-            UIDispatcher = Dispatcher.CurrentDispatcher;
             _deleteOnRestartManager = deleteOnRestartManager;
             _vsRestarter = vsRestarter;
+
+            // Since the DeleteonRestartManager is guranteed to be a singleton, we can rely on it for firing the events
+            // both in package management ui and the powershell console.
             _deleteOnRestartManager.PackagesMarkedForDeletionFound += OnPackagesMarkedForDeletionFound;
+
+            // Since Loaded event is not reliable, we do it at construction time initially, this is only for
+            // the case when this needs to show up in package manager window (since package manager ui gets recreated,
+            // the check can happen here). For powershell, it depends on the event handlers firigng up either via
+            // package manager ui or the powershell commands like uninstall package.
+            _deleteOnRestartManager.CheckAndRaisePackageDirectoriesMarkedForDeletion();
 
             // Set DynamicResource binding in code
             // The reason we can't set it in XAML is that the VsBrushes class come from either
@@ -47,14 +52,6 @@ namespace NuGet.PackageManagement.UI
             // depending on whether NuGet runs inside VS12 or VS14.
             RestartBar.SetResourceReference(Border.BackgroundProperty, VsBrushes.InfoBackgroundKey);
             RestartBar.SetResourceReference(Border.BorderBrushProperty, VsBrushes.ActiveBorderKey);
-        }
-
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (_deleteOnRestartManager != null)
-            {
-                _deleteOnRestartManager.CheckAndRaisePackageDirectoriesMarkedForDeletion();
-            }
         }
 
         private void OnPackagesMarkedForDeletionFound(
@@ -67,27 +64,23 @@ namespace NuGet.PackageManagement.UI
 
         private void UpdateRestartBar(IReadOnlyList<string> packagesMarkedForDeletion)
         {
-            if (!UIDispatcher.CheckAccess())
+            NuGetUIThreadHelper.JoinableTaskFactory.RunAsync(async () =>
             {
-                UIDispatcher.Invoke(
-                    (Action<IReadOnlyList<string>>)UpdateRestartBar,
-                    packagesMarkedForDeletion);
-                return;
-            }
-
-            if (packagesMarkedForDeletion.Any())
-            {
-                var message = string.Format(
-                   CultureInfo.CurrentCulture,
-                   UI.Resources.RequestRestartToCompleteUninstall,
-                   string.Join(", ", packagesMarkedForDeletion));
-                RequestRestartMessage.Text = message;
-                RestartBar.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                RestartBar.Visibility = Visibility.Collapsed;
-            }
+                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                if (packagesMarkedForDeletion.Any())
+                {
+                    var message = string.Format(
+                       CultureInfo.CurrentCulture,
+                       UI.Resources.RequestRestartToCompleteUninstall,
+                       string.Join(", ", packagesMarkedForDeletion));
+                    RequestRestartMessage.Text = message;
+                    RestartBar.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    RestartBar.Visibility = Visibility.Collapsed;
+                }
+            });
         }
 
         private void ExecuteRestart(object sender, EventArgs e)

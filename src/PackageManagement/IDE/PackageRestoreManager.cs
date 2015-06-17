@@ -25,13 +25,18 @@ namespace NuGet.PackageManagement
 
         private ISourceRepositoryProvider SourceRepositoryProvider { get; }
         private ISolutionManager SolutionManager { get; }
+        private IDeleteOnRestartManager DeleteOnRestartManager { get; }
         private ISettings Settings { get; }
 
         public event EventHandler<PackagesMissingStatusEventArgs> PackagesMissingStatusChanged;
         public event EventHandler<PackageRestoredEventArgs> PackageRestoredEvent;
         public event EventHandler<PackageRestoreFailedEventArgs> PackageRestoreFailedEvent;
 
-        public PackageRestoreManager(ISourceRepositoryProvider sourceRepositoryProvider, ISettings settings, ISolutionManager solutionManager)
+        public PackageRestoreManager(
+            ISourceRepositoryProvider sourceRepositoryProvider,
+            ISettings settings,
+            ISolutionManager solutionManager,
+            IDeleteOnRestartManager deleteOnRestartManager)
         {
             if (sourceRepositoryProvider == null)
             {
@@ -48,9 +53,15 @@ namespace NuGet.PackageManagement
                 throw new ArgumentNullException(nameof(solutionManager));
             }
 
+            if (deleteOnRestartManager == null)
+            {
+                throw new ArgumentNullException(nameof(deleteOnRestartManager));
+            }
+
             SourceRepositoryProvider = sourceRepositoryProvider;
             Settings = settings;
             SolutionManager = solutionManager;
+            DeleteOnRestartManager = deleteOnRestartManager;
         }
 
         [Obsolete("Enabling and querying legacy package restore is not supported in VS 2015 RTM.")]
@@ -233,7 +244,11 @@ namespace NuGet.PackageManagement
         private NuGetPackageManager GetNuGetPackageManager(string solutionDirectory)
         {
             var packagesFolderPath = PackagesFolderPathUtility.GetPackagesFolderPath(solutionDirectory, Settings);
-            return new NuGetPackageManager(SourceRepositoryProvider, Settings, packagesFolderPath);
+            return new NuGetPackageManager(
+                SourceRepositoryProvider,
+                Settings,
+                packagesFolderPath,
+                DeleteOnRestartManager);
         }
 
         public Task<PackageRestoreResult> RestoreMissingPackagesAsync(NuGetPackageManager nuGetPackageManager,

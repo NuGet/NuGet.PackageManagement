@@ -72,7 +72,13 @@ namespace StandaloneUI
 
             var projects = new[] { projectA, projectB };
 
-            var packageRestoreManager = new PackageRestoreManager(repositoryProvider, settings, testSolutionManager);
+            var deleteOnRestartManager = new DeleteOnRestartManager(settings, testSolutionManager);
+            var packageRestoreManager = new PackageRestoreManager(
+                repositoryProvider,
+                settings,
+                testSolutionManager,
+                deleteOnRestartManager);
+
             var contextFactory = new StandaloneUIContextFactory(
                 repositoryProvider,
                 testSolutionManager,

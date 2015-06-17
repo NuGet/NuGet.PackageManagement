@@ -52,7 +52,8 @@ namespace NuGet.PackageManagement
         public NuGetPackageManager(
             ISourceRepositoryProvider sourceRepositoryProvider,
             ISettings settings,
-            string packagesFolderPath)
+            string packagesFolderPath,
+            IDeleteOnRestartManager deleteOnRestartManager)
         {
             if (sourceRepositoryProvider == null)
             {
@@ -73,13 +74,17 @@ namespace NuGet.PackageManagement
             Settings = settings;
 
             InitializePackagesFolderInfo(packagesFolderPath);
-            DeleteOnRestartManager = new DeleteOnRestartManager(packagesFolderPath);
+            DeleteOnRestartManager = deleteOnRestartManager;
         }
 
         /// <summary>
         /// To construct a NuGetPackageManager with a mandatory SolutionManager lke VS
         /// </summary>
-        public NuGetPackageManager(ISourceRepositoryProvider sourceRepositoryProvider, ISettings settings, ISolutionManager solutionManager)
+        public NuGetPackageManager(
+            ISourceRepositoryProvider sourceRepositoryProvider,
+            ISettings settings,
+            ISolutionManager solutionManager,
+            IDeleteOnRestartManager deleteOnRestartManager)
         {
             if (sourceRepositoryProvider == null)
             {
@@ -101,7 +106,7 @@ namespace NuGet.PackageManagement
             SolutionManager = solutionManager;
 
             InitializePackagesFolderInfo(PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings));
-            DeleteOnRestartManager = new DeleteOnRestartManager(settings, solutionManager);
+            DeleteOnRestartManager = deleteOnRestartManager;
         }
 
         private void InitializePackagesFolderInfo(string packagesFolderPath)
@@ -1170,6 +1175,9 @@ namespace NuGet.PackageManagement
                                 packageWithDirectoryToBeDeleted,
                                 packageDirectory,
                                 nuGetProjectContext);
+
+                            // Raise the event to notify listners to update the UI etc.
+                            DeleteOnRestartManager.CheckAndRaisePackageDirectoriesMarkedForDeletion();
                         }
                     }
                 }

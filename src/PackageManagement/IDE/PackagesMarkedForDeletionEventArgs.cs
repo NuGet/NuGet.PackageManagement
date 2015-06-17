@@ -22,6 +22,11 @@ namespace NuGet.PackageManagement
         /// <param name="markedForDeletion">The directory paths that are marked for deletion.</param>
         public PackagesMarkedForDeletionEventArgs(IReadOnlyList<string> markedForDeletion)
         {
+            if (markedForDeletion == null)
+            {
+                throw new ArgumentNullException(nameof(markedForDeletion));
+            }
+
             MarkedForDeletion = markedForDeletion;
         }
     }

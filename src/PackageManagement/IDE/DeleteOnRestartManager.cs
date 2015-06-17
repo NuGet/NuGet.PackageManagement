@@ -28,16 +28,26 @@ namespace NuGet.PackageManagement
 
         public event EventHandler<PackagesMarkedForDeletionEventArgs> PackagesMarkedForDeletionFound;
 
-        public DeleteOnRestartManager(string folderPath)
+        /// <summary>
+        /// Creates a new instance of <see cref="DeleteOnRestartManager"/>.
+        /// </summary>
+        /// <param name="packagesFolderPath">The packages folder path.</param>
+        public DeleteOnRestartManager(string packagesFolderPath)
         {
-            if (folderPath == null)
+            if (packagesFolderPath == null)
             {
-                throw new ArgumentNullException(nameof(folderPath));
+                throw new ArgumentNullException(nameof(packagesFolderPath));
             }
 
-            PackagesFolderPath = folderPath;
+            PackagesFolderPath = packagesFolderPath;
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="DeleteOnRestartManager"/>.
+        /// </summary>
+        /// <param name="settings">The <see cref="ISettings"/> associated with the current solution.</param>
+        /// <param name="solutionManager">The <see cref="ISolutionManager"/> associated with the current solution.
+        /// </param>
         public DeleteOnRestartManager(
             ISettings settings,
             ISolutionManager solutionManager)
@@ -64,15 +74,14 @@ namespace NuGet.PackageManagement
         {
             get
             {
-                // This can only be null when intialized during startup and the solution is not loaded at construction.
-                // Try to get the packages folder Path now.
-                if (_packagesFolderPath == null)
+                // We need to recompute the path because a solution might load a different nuget package.
+                // Note since this IDeleteOnRestartManager instance is created via a packageFolderPath constructor,
+                // the value is never recomputed unless the SolutionManager is set.
+                // _packagesFolderPath
+                if (SolutionManager?.SolutionDirectory != null)
                 {
-                    if (SolutionManager?.SolutionDirectory != null)
-                    {
-                        _packagesFolderPath =
-                            PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings);
-                    }
+                    _packagesFolderPath =
+                        PackagesFolderPathUtility.GetPackagesFolderPath(SolutionManager, Settings);
                 }
 
                 return _packagesFolderPath;
@@ -86,7 +95,6 @@ namespace NuGet.PackageManagement
 
         public IReadOnlyList<string> GetPackageDirectoriesMarkedForDeletion()
         {
-
             if (PackagesFolderPath == null)
             {
                 return new List<string>();
@@ -208,7 +216,7 @@ namespace NuGet.PackageManagement
                                MessageLevel.Warning,
                                string.Format(
                                    CultureInfo.CurrentCulture,
-                                   Strings.Warning_FailedToDeleteMarkedPackageDirectory,
+                                   Strings.Warning_FailedToDeleteMarkedPackageDirectories,
                                    e.Message));
             }
         }
