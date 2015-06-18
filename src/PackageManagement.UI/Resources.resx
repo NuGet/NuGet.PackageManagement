@@ -388,7 +388,7 @@ Packages installed into Website projects will not be restored during build. Cons
     <value>_Restore</value>
   </data>
   <data name="RestartButtonLabel" xml:space="preserve">
-    <value>Restart Now.</value>
+    <value>Rest_art</value>
   </data>
   <data name="AskForUpdateMessage" xml:space="preserve">
     <value>A new version of NuGet Package Manager is available.</value>
@@ -436,9 +436,9 @@ Packages installed into Website projects will not be restored during build. Cons
     <value>Not available in this source</value>
   </data>
   <data name="RequestRestartToCompleteUninstallMultiplePackages" xml:space="preserve">
-    <value>Multiple packages could not be completely uninstalled. Restart Visual Studio to finish uninstall.</value>
+    <value>Multiple packages failed to uninstall. Restart Visual Studio to finish the process.</value>
   </data>
   <data name="RequestRestartToCompleteUninstallSinglePackage" xml:space="preserve">
-    <value>The package '{0}' could not be completely uninstalled. Restart Visual Studio to finish uninstall.</value>
+    <value>The package at '{0}' failed to uninstall. Restart Visual Studio to finish the process.</value>
   </data>
 </root>

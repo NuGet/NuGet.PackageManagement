@@ -711,7 +711,7 @@ namespace NuGet.PackageManagement.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Multiple packages could not be completely uninstalled. Restart Visual Studio to finish uninstall..
+        ///   Looks up a localized string similar to Multiple packages failed to uninstall. Restart Visual Studio to finish the process..
         /// </summary>
         public static string RequestRestartToCompleteUninstallMultiplePackages {
             get {
@@ -720,7 +720,7 @@ namespace NuGet.PackageManagement.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The package &apos;{0}&apos; could not be completely uninstalled. Restart Visual Studio to finish uninstall..
+        ///   Looks up a localized string similar to The package at &apos;{0}&apos; failed to uninstall. Restart Visual Studio to finish the process..
         /// </summary>
         public static string RequestRestartToCompleteUninstallSinglePackage {
             get {
@@ -729,7 +729,7 @@ namespace NuGet.PackageManagement.UI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Restart Now..
+        ///   Looks up a localized string similar to Rest_art.
         /// </summary>
         public static string RestartButtonLabel {
             get {

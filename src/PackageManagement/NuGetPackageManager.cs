@@ -1162,6 +1162,7 @@ namespace NuGet.PackageManagement
                 // Also, always perform deletion of package directories, even in a rollback, so that there are no stale package directories
                 foreach (var packageWithDirectoryToBeDeleted in packageWithDirectoriesToBeDeleted)
                 {
+                    var packageFolderPath = PackagesFolderNuGetProject.GetInstalledPath(packageWithDirectoryToBeDeleted);
                     try
                     {
                         await DeletePackage(packageWithDirectoryToBeDeleted, nuGetProjectContext, token);
@@ -1170,13 +1171,11 @@ namespace NuGet.PackageManagement
                     {
                         if (DeleteOnRestartManager != null)
                         {
-                            var packageDirectory =
-                                PackagesFolderNuGetProject.GetInstalledPackageDirectory(packageWithDirectoryToBeDeleted);
-                            if (Directory.Exists(packageDirectory))
+                            if (Directory.Exists(packageFolderPath))
                             {
                                 DeleteOnRestartManager.MarkPackageDirectoryForDeletion(
                                     packageWithDirectoryToBeDeleted,
-                                    packageDirectory,
+                                    packageFolderPath,
                                     nuGetProjectContext);
 
                                 // Raise the event to notify listners to update the UI etc.

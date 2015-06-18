@@ -356,7 +356,10 @@ namespace NuGet.PackageManagement.UI
             if (Model.Context.PackageRestoreManager != null)
             {
                 _restoreBar = new PackageRestoreBar(Model.Context.SolutionManager, Model.Context.PackageRestoreManager);
+                _restoreBar.SetValue(Grid.RowProperty, 0);
+
                 _root.Children.Add(_restoreBar);
+
                 Model.Context.PackageRestoreManager.PackagesMissingStatusChanged += packageRestoreManager_PackagesMissingStatusChanged;
             }
         }
@@ -377,6 +380,8 @@ namespace NuGet.PackageManagement.UI
             if (Model.Context.PackageManager.DeleteOnRestartManager != null && vsRestarter != null)
             {
                 _restartBar = new RestartRequestBar(Model.Context.PackageManager.DeleteOnRestartManager, vsRestarter);
+                _restartBar.SetValue(Grid.RowProperty, 1);
+
                 _root.Children.Add(_restartBar);
             }
         }

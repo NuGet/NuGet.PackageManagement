@@ -40,6 +40,8 @@
           Height="Auto" />
         <RowDefinition
           Height="Auto" />
+        <RowDefinition
+          Height="Auto" />
         <RowDefinition />
       </Grid.RowDefinitions>
       <!-- Row 0 is used by restore bar -->
