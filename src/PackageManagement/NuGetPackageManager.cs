@@ -345,8 +345,11 @@ namespace NuGet.PackageManagement
             var projectInstalledPackageReferences = await nuGetProject.GetInstalledPackagesAsync(token);
             var oldListOfInstalledPackages = projectInstalledPackageReferences.Select(p => p.PackageIdentity);
 
+            // Find the id from either the package identity or the packageId directly.
+            var installedPackageId = packageIdentity?.Id ?? packageId;
+
             var installedPackageReference = projectInstalledPackageReferences
-                    .Where(pr => StringComparer.OrdinalIgnoreCase.Equals(pr.PackageIdentity.Id, packageId))
+                    .Where(pr => StringComparer.OrdinalIgnoreCase.Equals(pr.PackageIdentity.Id, installedPackageId))
                     .FirstOrDefault();
 
             // DNX and BuildIntegrated projects are handled here
@@ -382,6 +385,7 @@ namespace NuGet.PackageManagement
                     var action = NuGetProjectAction.CreateInstallProjectAction(updateToIdentity, primarySources.FirstOrDefault());
 
                     var lowLevelActions = new List<NuGetProjectAction>();
+                    lowLevelActions.Add(NuGetProjectAction.CreateUninstallProjectAction(installedPackageReference.PackageIdentity));
                     lowLevelActions.Add(NuGetProjectAction.CreateInstallProjectAction(updateToIdentity, primarySources.FirstOrDefault()));
 
                     var buildIntegratedProject = nuGetProject as BuildIntegratedNuGetProject;
