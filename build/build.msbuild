@@ -66,10 +66,12 @@
             <SrcProjectsToRestore Include="$(RootDir)\src\ProjectManagement\*.csproj" />
             <SrcProjectsToRestore Include="$(RootDir)\src\PackageManagement\*.csproj" />
             <SrcProjectsToRestore Include="$(RootDir)\src\PackageManagement.UI\*.csproj" />
+            <SrcProjectsToRestore Include="$(RootDir)\src\NuGet.CommandLine\*.csproj" />
 
             <TestProjectsToRestore Include="$(RootDir)\test\Test.Utility\*.csproj" />
             <TestProjectsToRestore Include="$(RootDir)\test\ProjectManagement.Test\*.csproj" />
             <TestProjectsToRestore Include="$(RootDir)\test\PackageManagement.Test\*.csproj" />
+            <TestProjectsToRestore Include="$(RootDir)\test\NuGet.CommandLine.Test\*.csproj" />
             <TestProjectsToRestore Include="$(RootDir)\test\StandaloneUI\*.csproj" />
         </ItemGroup>
         
@@ -81,6 +83,7 @@
       <!-- tests -->
      <TestProjects Include="$(RootDir)\test\ProjectManagement.Test\ProjectManagement.Test.csproj" />
      <TestProjects Include="$(RootDir)\test\PackageManagement.Test\PackageManagement.Test.csproj" />
+     <TestProjects Include="$(RootDir)\test\NuGet.CommandLine.Test\NuGet.CommandLine.Test.csproj" />
     </ItemGroup>
 
     <Target Name="RunTests" Condition=" '$(DisableRunningUnitTests)' != 'true' ">        
