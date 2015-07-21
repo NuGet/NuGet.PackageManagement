@@ -254,15 +254,25 @@ namespace NuGet.CommandLine
                     reference,
                     new[] { _solutionFileFullPath ?? _packagesConfigFileFullPath },
                     isMissing: true));
-            var packageSources = GetPackageSources(Settings)
-                .Select(sourceRepositoryProvider.CreateRepository);
+            var packageSources = GetPackageSources(Settings);
+
+            if (!NoCache && !string.IsNullOrEmpty(MachineCache.Default?.Source))
+            {
+                packageSources = new[] { new Configuration.PackageSource(MachineCache.Default?.Source) }
+                    .Concat(packageSources);
+            }
+
+            var repositories = packageSources
+                .Select(sourceRepositoryProvider.CreateRepository)
+                .ToArray();
+
             var packageRestoreContext = new PackageRestoreContext(
                 nuGetPackageManager, 
                 packageRestoreData, 
                 CancellationToken.None,
                 packageRestoredEvent: null,
                 packageRestoreFailedEvent: null,
-                sourceRepositories: packageSources,
+                sourceRepositories: repositories,
                 maxNumberOfParallelTasks: DisableParallelProcessing ? 1 : PackageManagementConstants.DefaultMaxDegreeOfParallelism);
 
             CheckRequireConsent();
