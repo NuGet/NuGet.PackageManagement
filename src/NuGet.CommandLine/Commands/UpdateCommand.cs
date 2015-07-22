@@ -228,20 +228,44 @@ namespace NuGet.CommandLine
             var projectDirectory = Path.GetDirectoryName(project.ProjectFullPath);
             var packageManager = new NuGetPackageManager(sourceRepositoryProvider, Settings, packagesDirectory);
             var nugetProject = new MSBuildNuGetProject(project, packagesDirectory, projectDirectory);
+            var versionConstraints = Safe ? VersionConstraints.ExactMajor | VersionConstraints.ExactMinor : VersionConstraints.None;
+            var projectActions = new List<NuGetProjectAction>();
 
-            var projectActions = await packageManager.PreviewUpdatePackagesAsync(
-                nugetProject,
-                new ResolutionContext(
-                    Resolver.DependencyBehavior.Highest,
-                    Prerelease,
-                    includeUnlisted: false,
-                    versionConstraints: Safe ?
-                    VersionConstraints.ExactMajor | VersionConstraints.ExactMinor:
-                    VersionConstraints.None),
-                project.NuGetProjectContext,
-                GetPackageSources().Select(sourceRepositoryProvider.CreateRepository),
-                Enumerable.Empty<SourceRepository>(),
-                CancellationToken.None);
+            if (Id.Count > 0)
+            {
+                foreach (var packageId in Id)
+                {
+                    var actions = await packageManager.PreviewUpdatePackagesAsync(
+                       packageId,
+                       nugetProject,
+                       new ResolutionContext(
+                           Resolver.DependencyBehavior.Highest,
+                           Prerelease,
+                           includeUnlisted: false,
+                           versionConstraints: versionConstraints),
+                       project.NuGetProjectContext,
+                       GetPackageSources().Select(sourceRepositoryProvider.CreateRepository),
+                       Enumerable.Empty<SourceRepository>(),
+                       CancellationToken.None);
+
+                    projectActions.AddRange(actions);
+                }
+            }
+            else
+            {
+                var actions = await packageManager.PreviewUpdatePackagesAsync(
+                        nugetProject,
+                        new ResolutionContext(
+                            Resolver.DependencyBehavior.Highest,
+                            Prerelease,
+                            includeUnlisted: false,
+                            versionConstraints: versionConstraints),
+                        project.NuGetProjectContext,
+                        GetPackageSources().Select(sourceRepositoryProvider.CreateRepository),
+                        Enumerable.Empty<SourceRepository>(),
+                        CancellationToken.None);
+                projectActions.AddRange(actions);
+            }
 
             await packageManager.ExecuteNuGetProjectActionsAsync(
                 nugetProject,
