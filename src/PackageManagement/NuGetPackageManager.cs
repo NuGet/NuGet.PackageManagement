@@ -1372,6 +1372,10 @@ namespace NuGet.PackageManagement
 
             var logger = new ProjectContextLogger(nuGetProjectContext);
 
+            var effectiveGlobalPackagesFolder = BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
+                                                    SolutionManager?.SolutionDirectory,
+                                                    Settings);
+
             // If the lock file does not exist, restore before starting the operations
             if (originalLockFile == null)
             {
@@ -1385,7 +1389,7 @@ namespace NuGet.PackageManagement
                     originalPackageSpec,
                     logger,
                     sources,
-                    Settings,
+                    effectiveGlobalPackagesFolder,
                     token);
 
                 originalLockFile = originalRestoreResult.LockFile;
@@ -1414,7 +1418,7 @@ namespace NuGet.PackageManagement
                 packageSpec,
                 logger,
                 sources,
-                Settings,
+                effectiveGlobalPackagesFolder,
                 token);
 
             return new BuildIntegratedProjectAction(nuGetProjectActions.First().PackageIdentity,
@@ -1435,13 +1439,18 @@ namespace NuGet.PackageManagement
         {
             BuildIntegratedProjectAction projectAction = null;
 
-            if (nuGetProjectActions.Count() == 1 && nuGetProjectActions.All(action => action is BuildIntegratedProjectAction))
+            if (nuGetProjectActions.Count() == 1
+                && nuGetProjectActions.All(action => action is BuildIntegratedProjectAction))
             {
                 projectAction = nuGetProjectActions.Single() as BuildIntegratedProjectAction;
             }
             else
             {
-                projectAction = await PreviewBuildIntegratedProjectActionsAsync(buildIntegratedProject, nuGetProjectActions, nuGetProjectContext, token);
+                projectAction = await PreviewBuildIntegratedProjectActionsAsync(
+                    buildIntegratedProject,
+                    nuGetProjectActions,
+                    nuGetProjectContext,
+                    token);
             }
 
             var restoreResult = projectAction.RestoreResult;
@@ -1450,7 +1459,10 @@ namespace NuGet.PackageManagement
             {
                 // Write out project.json
                 // This can be replaced with the PackageSpec writer once it has been added to the library
-                using (var writer = new StreamWriter(buildIntegratedProject.JsonConfigPath, append: false, encoding: Encoding.UTF8))
+                using (var writer = new StreamWriter(
+                    buildIntegratedProject.JsonConfigPath,
+                    append: false,
+                    encoding: Encoding.UTF8))
                 {
                     await writer.WriteAsync(projectAction.UpdatedProjectJson.ToString());
                 }
@@ -1486,30 +1498,54 @@ namespace NuGet.PackageManagement
                 }
 
                 // Run init.ps1 scripts
-                var sortedPackages = BuildIntegratedProjectUtility.GetOrderedProjectDependencies(buildIntegratedProject);
+                var sortedPackages =
+                    BuildIntegratedProjectUtility.GetOrderedProjectDependencies(buildIntegratedProject);
+
                 var addedPackages = new HashSet<PackageIdentity>(
-                    BuildIntegratedRestoreUtility.GetAddedPackages(projectAction.OriginalLockFile, restoreResult.LockFile),
+                    BuildIntegratedRestoreUtility.GetAddedPackages(
+                        projectAction.OriginalLockFile,
+                        restoreResult.LockFile),
                     PackageIdentity.Comparer);
+
+                var effectiveGlobalPackagesFolder = BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
+                                                        SolutionManager?.SolutionDirectory,
+                                                        Settings);
 
                 // Find all dependencies in sorted order, then using the order run init.ps1 for only the new packages.
                 foreach (var package in sortedPackages)
                 {
                     if (addedPackages.Contains(package))
                     {
-                        var packagePath = BuildIntegratedProjectUtility.GetPackagePathFromGlobalSource(package, Settings);
-                        await buildIntegratedProject.ExecuteInitScriptAsync(package, nuGetProjectContext, false);
+                        var packageInstallPath =
+                            BuildIntegratedProjectUtility.GetPackagePathFromGlobalSource(
+                                effectiveGlobalPackagesFolder,
+                                package);
+
+                        await buildIntegratedProject.ExecuteInitScriptAsync(
+                            package,
+                            packageInstallPath,
+                            nuGetProjectContext,
+                            false);
                     }
                 }
             }
             else
             {
                 // Fail and display a rollback message to let the user know they have returned to the original state
-                throw new InvalidOperationException(String.Format(CultureInfo.InvariantCulture, Strings.RestoreFailedRollingBack, buildIntegratedProject.ProjectName));
+                throw new InvalidOperationException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        Strings.RestoreFailedRollingBack,
+                        buildIntegratedProject.ProjectName));
             }
         }
 
-        private async Task Rollback(NuGetProject nuGetProject, Stack<NuGetProjectAction> executedNuGetProjectActions, HashSet<PackageIdentity> packageWithDirectoriesToBeDeleted,
-            INuGetProjectContext nuGetProjectContext, CancellationToken token)
+        private async Task Rollback(
+            NuGetProject nuGetProject,
+            Stack<NuGetProjectAction> executedNuGetProjectActions,
+            HashSet<PackageIdentity> packageWithDirectoriesToBeDeleted,
+            INuGetProjectContext nuGetProjectContext,
+            CancellationToken token)
         {
             if (executedNuGetProjectActions.Count > 0)
             {

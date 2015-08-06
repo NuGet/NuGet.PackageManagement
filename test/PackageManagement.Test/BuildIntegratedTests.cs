@@ -761,7 +761,8 @@ namespace NuGet.Test
 
         private class TestBuildIntegratedNuGetProject : BuildIntegratedNuGetProject
         {
-            public HashSet<PackageIdentity> ExecuteInitScriptAsyncCalls { get; } = new HashSet<PackageIdentity>(PackageIdentity.Comparer);
+            public HashSet<PackageIdentity> ExecuteInitScriptAsyncCalls { get; }
+                = new HashSet<PackageIdentity>(PackageIdentity.Comparer);
 
             public TestBuildIntegratedNuGetProject(string jsonConfig, IMSBuildNuGetProjectSystem msbuildProjectSystem)
                 : base(jsonConfig, msbuildProjectSystem)
@@ -769,11 +770,15 @@ namespace NuGet.Test
 
             }
 
-            public override Task<bool> ExecuteInitScriptAsync(PackageIdentity identity, INuGetProjectContext projectContext, bool throwOnFailure)
+            public override Task<bool> ExecuteInitScriptAsync(
+                PackageIdentity identity,
+                string packageInstallPath,
+                INuGetProjectContext projectContext,
+                bool throwOnFailure)
             {
                 ExecuteInitScriptAsyncCalls.Add(identity);
 
-                return base.ExecuteInitScriptAsync(identity, projectContext, throwOnFailure);
+                return base.ExecuteInitScriptAsync(identity, packageInstallPath, projectContext, throwOnFailure);
             }
         }
     }

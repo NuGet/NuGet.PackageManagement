@@ -221,17 +221,20 @@ namespace NuGet.Test
             var msBuildNuGetProjectSystem = new TestMSBuildNuGetProjectSystem(projectTargetFramework, new TestNuGetProjectContext());
             var project = new BuildIntegratedNuGetProject(projectConfig.FullName, msBuildNuGetProjectSystem);
 
+            var effectiveGlobalPackagesFolder =
+                BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
+                    null,
+                    Configuration.NullSettings.Instance);
+
             var result = await BuildIntegratedRestoreUtility.RestoreAsync(project,
                 Logging.NullLogger.Instance,
                 sources,
-                Configuration.NullSettings.Instance,
+                effectiveGlobalPackagesFolder,
                 CancellationToken.None);
 
             var projects = new List<BuildIntegratedNuGetProject>() { project };
 
-            var packagesFolder = SettingsUtility.GetGlobalPackagesFolder(Configuration.NullSettings.Instance);
-
-            var resolver = new VersionFolderPathResolver(packagesFolder);
+            var resolver = new VersionFolderPathResolver(effectiveGlobalPackagesFolder);
 
             // Act
             var b = BuildIntegratedRestoreUtility.IsRestoreRequired(projects, resolver);
@@ -271,17 +274,20 @@ namespace NuGet.Test
             var msBuildNuGetProjectSystem = new TestMSBuildNuGetProjectSystem(projectTargetFramework, new TestNuGetProjectContext());
             var project = new BuildIntegratedNuGetProject(projectConfig.FullName, msBuildNuGetProjectSystem);
 
+            var effectiveGlobalPackagesFolder =
+                BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
+                    null,
+                    Configuration.NullSettings.Instance);
+
             var result = await BuildIntegratedRestoreUtility.RestoreAsync(project,
                 Logging.NullLogger.Instance,
                 sources,
-                Configuration.NullSettings.Instance,
+                effectiveGlobalPackagesFolder,
                 CancellationToken.None);
 
             var projects = new List<BuildIntegratedNuGetProject>() { project };
 
-            var packagesFolder = SettingsUtility.GetGlobalPackagesFolder(Configuration.NullSettings.Instance);
-
-            var resolver = new VersionFolderPathResolver(packagesFolder);
+            var resolver = new VersionFolderPathResolver(effectiveGlobalPackagesFolder);
 
             // Act
             var b = BuildIntegratedRestoreUtility.IsRestoreRequired(projects, resolver);
@@ -617,11 +623,16 @@ namespace NuGet.Test
                 new TestNuGetProjectContext());
             var project = new BuildIntegratedNuGetProject(projectConfig.FullName, msBuildNuGetProjectSystem);
 
+            var effectiveGlobalPackagesFolder =
+                BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
+                    null,
+                    Configuration.NullSettings.Instance);
+
             // Act
             var result = await BuildIntegratedRestoreUtility.RestoreAsync(project,
                 Logging.NullLogger.Instance,
                 sources,
-                Configuration.NullSettings.Instance,
+                effectiveGlobalPackagesFolder,
                 CancellationToken.None);
 
             // Assert
@@ -630,6 +641,76 @@ namespace NuGet.Test
 
             // Clean-up
             TestFilesystemUtility.DeleteRandomTestFolders(rootFolder);
+        }
+
+        [Fact]
+        public async Task BuildIntegratedRestoreUtility_RestoreToRelativePathGlobalPackagesFolder()
+        {
+            // Arrange
+            var projectName = "testproj";
+
+            var rootFolder = TestFilesystemUtility.CreateRandomTestFolder();
+            var projectFolder = new DirectoryInfo(Path.Combine(rootFolder, projectName));
+            projectFolder.Create();
+            var projectConfig = new FileInfo(Path.Combine(projectFolder.FullName, "project.json"));
+
+            File.WriteAllText(projectConfig.FullName, ProjectJsonWithPackage);
+
+            var sources = new List<string>
+                {
+                    "https://www.nuget.org/api/v2/"
+                };
+
+            var projectTargetFramework = NuGetFramework.Parse("uap10.0");
+            var msBuildNuGetProjectSystem = new TestMSBuildNuGetProjectSystem(projectTargetFramework,
+                new TestNuGetProjectContext());
+            var project = new BuildIntegratedNuGetProject(projectConfig.FullName, msBuildNuGetProjectSystem);
+
+            // Arrange
+            var configContents = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+<config>
+<add key=""globalPackagesFolder"" value=""..\NuGetPackages"" />
+</config>
+</configuration>";
+
+            var configFolder = TestFilesystemUtility.CreateRandomTestFolder();
+            File.WriteAllText(Path.Combine(configFolder, "nuget.config"), configContents);
+
+            var settings = new Configuration.Settings(configFolder);
+
+            var solutionFolderParent = TestFilesystemUtility.CreateRandomTestFolder();
+            var solutionFolder = new DirectoryInfo(Path.Combine(solutionFolderParent, "solutionFolder"));
+            solutionFolder.Create();
+
+            var effectiveGlobalPackagesFolder =
+                BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
+                    solutionFolder.FullName,
+                    settings);
+
+            // Act
+            var result = await BuildIntegratedRestoreUtility.RestoreAsync(project,
+                Logging.NullLogger.Instance,
+                sources,
+                effectiveGlobalPackagesFolder,
+                CancellationToken.None);
+
+            // Assert
+            Assert.True(File.Exists(Path.Combine(projectFolder.FullName, "project.lock.json")));
+
+            var packagesFolder = Path.Combine(solutionFolderParent, "NuGetPackages");
+
+            Assert.True(Directory.Exists(packagesFolder));
+            Assert.True(File.Exists(Path.Combine(
+                packagesFolder,
+                "EntityFramework",
+                "5.0.0",
+                "EntityFramework.5.0.0.nupkg")));
+
+            Assert.True(result.Success);
+
+            // Clean-up
+            TestFilesystemUtility.DeleteRandomTestFolders(rootFolder, configFolder, solutionFolderParent);
         }
 
         private static void CreateConfigJson(string path)
@@ -656,6 +737,15 @@ namespace NuGet.Test
                 return json;
             }
         }
+
+        private const string ProjectJsonWithPackage = @"{
+  'dependencies': {
+    'EntityFramework': '5.0.0'
+  },
+  'frameworks': {
+                'netcore50': { }
+            }
+}";
 
 
         private class TestBuildIntegratedNuGetProject : BuildIntegratedNuGetProject
