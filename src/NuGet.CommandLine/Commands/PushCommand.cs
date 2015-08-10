@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Configuration;
 
@@ -96,8 +98,8 @@ namespace NuGet.CommandLine
                 if (String.IsNullOrEmpty(apiKey))
                 {
                     Console.WriteWarning(
-                        LocalizedResourceManager.GetString("Warning_SymbolServerNotConfigured"), 
-                        Path.GetFileName(symbolPackagePath), 
+                        LocalizedResourceManager.GetString("Warning_SymbolServerNotConfigured"),
+                        Path.GetFileName(symbolPackagePath),
                         LocalizedResourceManager.GetString("DefaultSymbolServer"));
                 }
                 PushPackage(symbolPackagePath, source, apiKey, timeout);
@@ -126,10 +128,10 @@ namespace NuGet.CommandLine
 
             EnsurePackageFileExists(packagePath, packagesToPush);
 
-            foreach (string packageToPush in packagesToPush)
+            Parallel.ForEach(packagesToPush, packageToPush =>
             {
                 PushPackageCore(source, apiKey, packageServer, packageToPush, timeout);
-            }
+            });
         }
 
         private void PushPackageCore(string source, string apiKey, PackageServer packageServer, string packageToPush, TimeSpan timeout)
@@ -147,15 +149,34 @@ namespace NuGet.CommandLine
             }
 
             string sourceName = CommandLineUtility.GetSourceDisplayName(source);
-            Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPushingPackage"), package.GetFullName(), sourceName);
+            var packageName = Path.GetFileNameWithoutExtension(packageToPush);
+            Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPushingPackage"), packageName, sourceName);
 
-            packageServer.PushPackage(
-                apiKey,
-                package,
-                new FileInfo(packageToPush).Length,
-                Convert.ToInt32(timeout.TotalMilliseconds),
-                DisableBuffering);
-            Console.WriteLine(LocalizedResourceManager.GetString("PushCommandPackagePushed"));
+            var retries = 0;
+            try
+            {
+                packageServer.PushPackage(
+                    apiKey,
+                    package,
+                    new FileInfo(packageToPush).Length,
+                    Convert.ToInt32(timeout.TotalMilliseconds),
+                    DisableBuffering);
+            }
+            catch (WebException ex) when (++retries < 3)
+            {
+                Console.WriteWarning(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        LocalizedResourceManager.GetString(nameof(NuGetResources.PushCommandRetryingPush)),
+                        packageName,
+                        ex.Message));
+            }
+
+            Console.WriteLine(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    LocalizedResourceManager.GetString(nameof(NuGetResources.PushCommandPackagePushed)),
+                    packageName));
         }
 
         private static IEnumerable<string> GetPackagesToPush(string packagePath)

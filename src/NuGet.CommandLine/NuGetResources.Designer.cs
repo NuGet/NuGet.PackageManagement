@@ -8800,7 +8800,7 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your package was pushed..
+        ///   Looks up a localized string similar to Package &apos;{0}&apos; was pushed..
         /// </summary>
         public static string PushCommandPackagePushed {
             get {
@@ -9048,6 +9048,15 @@ namespace NuGet.CommandLine {
         public static string PushCommandPushingPackage_trk {
             get {
                 return ResourceManager.GetString("PushCommandPushingPackage_trk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to push package &apos;{0}&apos;. Error: &apos;{1}&apos;. Retrying....
+        /// </summary>
+        public static string PushCommandRetryingPush {
+            get {
+                return ResourceManager.GetString("PushCommandRetryingPush", resourceCulture);
             }
         }
         

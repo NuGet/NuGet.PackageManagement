@@ -418,7 +418,7 @@
     <value>File from dependency is changed. Adding file '{0}'.</value>
   </data>
   <data name="PushCommandPackagePushed" xml:space="preserve">
-    <value>Your package was pushed.</value>
+    <value>Package '{0}' was pushed.</value>
   </data>
   <data name="PackageCommandFileFromDependencyIsNotChanged" xml:space="preserve">
     <value>File from dependency is not changed. File '{0}' is not added.</value>
@@ -6032,5 +6032,8 @@ Oluşturma sırasında NuGet'in paketleri indirmesini önlemek için, Visual Stu
   </data>
   <data name="MsBuildDoesNotExistAtPath" xml:space="preserve">
     <value>MsBuild.exe does not exist at '{0}'.</value>
+  </data>
+  <data name="PushCommandRetryingPush" xml:space="preserve">
+    <value>Failed to push package '{0}'. Error: '{1}'. Retrying...</value>
   </data>
 </root>
