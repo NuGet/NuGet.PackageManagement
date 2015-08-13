@@ -6037,4 +6037,14 @@ Oluşturma sırasında NuGet'in paketleri indirmesini önlemek için, Visual Stu
     <value>'globalPackagesFolder' setting is a relative path. To determine full path, please specify either -SolutionDirectory or a solution file as a parameter. To ignore 'globalPackagesFolder' setting, specify -PackagesDirectory.</value>
     <comment>Please do not localize 'globalPackagesFolder', -SolutionDirectory or -PackagesDirectory</comment>
   </data>
+  <data name="Argument_Cannot_Be_Null_Or_Empty" xml:space="preserve">
+    <value>Value cannot be null or an empty string.</value>
+  </data>
+  <data name="Error_TooManyRedirections" xml:space="preserve">
+    <value>Too many automatic redirections were attempted.</value>
+  </data>
+  <data name="PackageServerError" xml:space="preserve">
+    <value>Failed to process request. '{0}'. 
+{1}.</value>
+  </data>
 </root>

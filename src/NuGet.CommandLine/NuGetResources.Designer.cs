@@ -439,6 +439,15 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value cannot be null or an empty string..
+        /// </summary>
+        public static string Argument_Cannot_Be_Null_Or_Empty {
+            get {
+                return ResourceManager.GetString("Argument_Cannot_Be_Null_Or_Empty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Building project &apos;{0}&apos; for target framework &apos;{1}&apos;..
         /// </summary>
         public static string BuildingProjectTargetingFramework {
@@ -3360,6 +3369,15 @@ namespace NuGet.CommandLine {
         public static string Error_SourceProviderIsNull_trk {
             get {
                 return ResourceManager.GetString("Error_SourceProviderIsNull_trk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many automatic redirections were attempted..
+        /// </summary>
+        public static string Error_TooManyRedirections {
+            get {
+                return ResourceManager.GetString("Error_TooManyRedirections", resourceCulture);
             }
         }
         
@@ -8544,6 +8562,16 @@ namespace NuGet.CommandLine {
         public static string PackageDoesNotExist_trk {
             get {
                 return ResourceManager.GetString("PackageDoesNotExist_trk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to process request. &apos;{0}&apos;. 
+        ///{1}..
+        /// </summary>
+        public static string PackageServerError {
+            get {
+                return ResourceManager.GetString("PackageServerError", resourceCulture);
             }
         }
         

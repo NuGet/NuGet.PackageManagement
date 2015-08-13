@@ -94,6 +94,7 @@
     <Compile Include="FileConflictAction.cs" />
     <Compile Include="ICommandManager.cs" />
     <Compile Include="MsBuildUtility.cs" />
+    <Compile Include="MultipartWebRequest.cs" />
     <Compile Include="NuGetCommand.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
