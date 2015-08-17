@@ -8326,6 +8326,15 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The directory of MSBuild. E.g. &quot;C:\Program Files (x86)\MSBuild\14.0\Bin&quot;. When the path is not specified, MSBuild v4.0 is used..
+        /// </summary>
+        internal static string PackCommandMsBuildPath {
+            get {
+                return ResourceManager.GetString("PackCommandMsBuildPath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to nuget pack
         ///
         ///nuget pack foo.nuspec

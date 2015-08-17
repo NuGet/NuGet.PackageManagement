@@ -5242,4 +5242,7 @@ nuget update -Self</value>
   <data name="CommandMSBuildVersion" xml:space="preserve">
     <value>Specifies the version of MSBuild to be used with this command. For example, "14" for MSBuild version 14.0. If not specified, the MSBuild in PATH, or MSBuild version 4.0 if PATH does not contain MSBbuild, will be used.</value>
   </data>
+  <data name="PackCommandMsBuildPath" xml:space="preserve">
+    <value>The directory of MSBuild. E.g. "C:\Program Files (x86)\MSBuild\14.0\Bin". When the path is not specified, MSBuild v4.0 is used.</value>
+  </data>
 </root>
