@@ -322,7 +322,7 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Specifies the version of MSBuild to be used with thise command. E.g. &quot;14&quot;. If not specified, nuget will use the msbuild found in PATH. If msbuild is not in PATH, then MSBuild version 4.0 will be used..
+        ///   Looks up a localized string similar to Specifies the version of MSBuild to be used with this command. For example, &quot;14&quot; for MSBuild version 14.0. If not specified, the MSBuild in PATH, or MSBuild version 4.0 if PATH does not contain MSBbuild, will be used..
         /// </summary>
         internal static string CommandMSBuildVersion {
             get {

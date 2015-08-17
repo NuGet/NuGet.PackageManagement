@@ -6047,6 +6047,9 @@ Oluşturma sırasında NuGet'in paketleri indirmesini önlemek için, Visual Stu
     <value>This version of msbuild is not supported: {0}</value>
   </data>
   <data name="Error_CannotFindMsbuild" xml:space="preserve">
-    <value>Cannot find the specified version of msbuild: {1}</value>
+    <value>Cannot find the specified version of msbuild: '{0}'</value>
+  </data>
+  <data name="Error_InvalidMsbuildVersion" xml:space="preserve">
+    <value>Invalid MSBuild version specified: '{0}'</value>
   </data>
 </root>

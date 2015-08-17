@@ -2329,7 +2329,7 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot find the specified version of msbuild: {1}.
+        ///   Looks up a localized string similar to Cannot find the specified version of msbuild: &apos;{0}&apos;.
         /// </summary>
         public static string Error_CannotFindMsbuild {
             get {
@@ -2739,6 +2739,15 @@ namespace NuGet.CommandLine {
         public static string Error_CannotPromptForInput_trk {
             get {
                 return ResourceManager.GetString("Error_CannotPromptForInput_trk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid MSBuild version specified: &apos;{0}&apos;.
+        /// </summary>
+        public static string Error_InvalidMsbuildVersion {
+            get {
+                return ResourceManager.GetString("Error_InvalidMsbuildVersion", resourceCulture);
             }
         }
         

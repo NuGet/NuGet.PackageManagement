@@ -130,29 +130,38 @@ namespace NuGet.CommandLine
                     Arguments = "/version",
                     RedirectStandardOutput = true
                 };
-                try
+
+                using (var process = Process.Start(processStartInfo))
                 {
-                    using (var process = Process.Start(processStartInfo))
+                    process.WaitForExit(10 * 1000);
+                    if (process.ExitCode == 0)
                     {
-                        process.WaitForExit(100);
-                        if (process.ExitCode == 0)
+                        var output = process.StandardOutput.ReadToEnd();
+                        var lines = output.Split(
+                            new[] { Environment.NewLine },
+                            StringSplitOptions.RemoveEmptyEntries);
+                        if (lines.Length > 0)
                         {
-                            var output = process.StandardOutput.ReadToEnd();
-                            var lines = output.Split(
-                                new[] { Environment.NewLine },
-                                StringSplitOptions.RemoveEmptyEntries);
                             version = lines[lines.Length - 1];
                         }
                     }
                 }
-                catch
-                {
-                }
             }
 
-            var ver = version.Contains('.') ?
-                new Version(version) :
-                new Version(version + ".0");
+            var versionString = version.Contains('.') ?
+                version :
+                version + ".0";
+            Version ver;
+            if (!Version.TryParse(versionString, out ver))
+            {
+                var message = string.Format(
+                    CultureInfo.CurrentCulture,
+                    LocalizedResourceManager.GetString(
+                        nameof(NuGetResources.Error_InvalidMsbuildVersion)),
+                    version);
+                throw new CommandLineException(message);
+            }
+
             using (var projectCollection = new ProjectCollection())
             {
                 foreach (var toolset in projectCollection.Toolsets)
