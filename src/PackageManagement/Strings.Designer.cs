@@ -133,6 +133,15 @@ namespace NuGet.PackageManagement {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Retrying package restore for &apos;{0}&apos;..
+        /// </summary>
+        internal static string Debug_RestoreRetry {
+            get {
+                return ResourceManager.GetString("Debug_RestoreRetry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot download packages from &apos;{0}&apos;..
         /// </summary>
         internal static string DownloadResourceNotFound {

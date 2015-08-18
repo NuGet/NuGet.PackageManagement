@@ -1448,9 +1448,9 @@ namespace NuGet.PackageManagement
             else
             {
                 projectAction = await PreviewBuildIntegratedProjectActionsAsync(
-                    buildIntegratedProject, 
-                    nuGetProjectActions, 
-                    nuGetProjectContext, 
+                    buildIntegratedProject,
+                    nuGetProjectActions,
+                    nuGetProjectContext,
                     token);
             }
 
@@ -1638,27 +1638,62 @@ namespace NuGet.PackageManagement
             }
 
             token.ThrowIfCancellationRequested();
-            nuGetProjectContext.Log(ProjectManagement.MessageLevel.Info, string.Format(Strings.RestoringPackage, packageIdentity));
+
+            nuGetProjectContext.Log(
+                ProjectManagement.MessageLevel.Info,
+                string.Format(Strings.RestoringPackage, packageIdentity));
+
             var enabledSources = (sourceRepositories != null && sourceRepositories.Any()) ? sourceRepositories :
                 SourceRepositoryProvider.GetRepositories().Where(e => e.PackageSource.IsEnabled);
 
             token.ThrowIfCancellationRequested();
 
-            using (var downloadResult = await PackageDownloader.GetDownloadResourceResultAsync(enabledSources,
-                packageIdentity,
-                Settings,
-                token))
-            {
-                packageIdentity = downloadResult.PackageReader.GetIdentity();
+            // maximum number of times to try restoring the package
+            var maxTries = 3;
+            var success = false;
 
-                // If you already downloaded the package, just restore it, don't cancel the operation now
-                await PackagesFolderNuGetProject.InstallPackageAsync(packageIdentity, downloadResult, nuGetProjectContext, token);
+            for (int i = 0; i < maxTries && !token.IsCancellationRequested && !success; i++)
+            {
+                try
+                {
+                    using (var downloadResult = await PackageDownloader.GetDownloadResourceResultAsync(
+                        enabledSources,
+                        packageIdentity,
+                        Settings,
+                        token))
+                    {
+                        packageIdentity = downloadResult.PackageReader.GetIdentity();
+
+                        // If you already downloaded the package, just restore it, don't cancel the operation now
+                        await PackagesFolderNuGetProject.InstallPackageAsync(
+                            packageIdentity,
+                            downloadResult,
+                            nuGetProjectContext,
+                            token);
+
+                        success = true;
+                    }
+                }
+                catch (Exception) when (i < (maxTries - 1))
+                {
+                    nuGetProjectContext.Log(
+                        ProjectManagement.MessageLevel.Debug,
+                        string.Format(Strings.Debug_RestoreRetry, packageIdentity));
+                }
+                catch (Exception) when (i >= (maxTries - 1))
+                {
+                    // Throw exceptions on the final try
+                    throw;
+                }
             }
 
             return true;
         }
 
-        public Task<bool> CopySatelliteFilesAsync(PackageIdentity packageIdentity, INuGetProjectContext nuGetProjectContext, CancellationToken token)
+        public Task<bool> CopySatelliteFilesAsync(
+            PackageIdentity packageIdentity,
+            INuGetProjectContext nuGetProjectContext,
+            CancellationToken token)
         {
             return PackagesFolderNuGetProject.CopySatelliteFilesAsync(packageIdentity, nuGetProjectContext, token);
         }

@@ -258,4 +258,7 @@
   <data name="UnsupportedPackageFeature" xml:space="preserve">
     <value>Package '{0}' uses features that are not supported by the current version of NuGet. To upgrade NuGet, see http://docs.nuget.org/consume/installing-nuget.</value>
   </data>
+  <data name="Debug_RestoreRetry" xml:space="preserve">
+    <value>Retrying package restore for '{0}'.</value>
+  </data>
 </root>
