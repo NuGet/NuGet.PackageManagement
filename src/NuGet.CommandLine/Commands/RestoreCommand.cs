@@ -143,7 +143,7 @@ namespace NuGet.CommandLine
             string projectJsonPath = null;
 
             IEnumerable<string> externalProjects = null;
-            if (string.Equals(PackageSpec.PackageSpecFileName, projectFileName, StringComparison.OrdinalIgnoreCase))
+            if (BuildIntegratedProjectUtility.IsProjectConfig(projectPath))
             {
                 // Restore a project.json file using the directory as the Id
                 Console.LogVerbose($"Reading project file {Arguments[0]}");
@@ -163,11 +163,10 @@ namespace NuGet.CommandLine
                 externalProjects = MsBuildUtility.GetProjectReferences(_msbuildDirectory, projectPath);
 
                 var projectDirectory = Path.GetDirectoryName(Path.GetFullPath(projectPath));
-                projectJsonPath = Path.Combine(projectDirectory, PackageSpec.PackageSpecFileName);
+                var projectName = Path.GetFileNameWithoutExtension(projectPath);
+                projectJsonPath = BuildIntegratedProjectUtility.GetProjectConfigPath(projectDirectory, projectName);
 
                 Console.LogVerbose($"Reading project file {projectPath}");
-
-                var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
                 project = JsonPackageSpecReader.GetPackageSpec(
                     File.ReadAllText(projectJsonPath),
@@ -178,11 +177,10 @@ namespace NuGet.CommandLine
             {
                 // Restore an unknown file type using the file name
                 // without the extension as the Id
-                projectJsonPath = Path.Combine(projectPath, PackageSpec.PackageSpecFileName);
+                var projectName = Path.GetFileNameWithoutExtension(projectPath);
+                projectJsonPath = BuildIntegratedProjectUtility.GetProjectConfigPath(projectPath, projectName);
 
                 Console.LogVerbose($"Reading project file {projectJsonPath}");
-
-                var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
                 project = JsonPackageSpecReader.GetPackageSpec(
                     File.ReadAllText(projectJsonPath),
@@ -228,10 +226,17 @@ namespace NuGet.CommandLine
             {
                 foreach (var externalReference in externalProjects)
                 {
+                    var projectDir = Path.GetDirectoryName(externalReference);
+                    var projectName = Path.GetFileNameWithoutExtension(externalReference);
+                    var childProjectJson =
+                        BuildIntegratedProjectUtility.GetProjectConfigPath(projectDir, projectName);
+
+                    Debug.Assert(File.Exists(childProjectJson), childProjectJson);
+
                     request.ExternalProjects.Add(
                         new ExternalProjectReference(
                             externalReference,
-                            Path.Combine(Path.GetDirectoryName(externalReference), PackageSpec.PackageSpecFileName),
+                            childProjectJson,
                             projectReferences: Enumerable.Empty<string>()));
                 }
             }
@@ -432,30 +437,52 @@ namespace NuGet.CommandLine
             }
             else
             {
-                var projectFilePath = Path.GetFullPath(Arguments.FirstOrDefault() ?? ".");
-                var projectFileName = Path.GetFileName(projectFilePath);
-                if (string.Equals(
-                    PackageSpec.PackageSpecFileName,
-                    projectFileName,
-                    StringComparison.OrdinalIgnoreCase)
-                    || MsBuildUtility.IsMsBuildBasedProject(projectFileName))
-                {
-                    packageRestoreInputs.V3RestoreFiles.Add(projectFilePath);
+                // An argument was passed in. It might be a solution file, 
+                // project file, project.json, or packages.config file
 
+                var projectFilePath = Path.GetFullPath(Arguments.First());
+                var projectFileName = Path.GetFileName(projectFilePath);
+
+                if (BuildIntegratedProjectUtility.IsProjectConfig(projectFileName))
+                {
+                    // project.json or projName.project.json
+                    packageRestoreInputs.V3RestoreFiles.Add(projectFilePath);
                 }
-                else if (Path.GetFileName(Arguments[0])
-                            .Equals(Constants.PackageReferenceFile, StringComparison.OrdinalIgnoreCase)
-                    || (Path.GetFileName(Arguments[0]).StartsWith("packages.", StringComparison.OrdinalIgnoreCase)
+                else if (string.Equals(projectFileName, Constants.PackageReferenceFile)
+                    || (projectFileName.StartsWith("packages.", StringComparison.OrdinalIgnoreCase)
                     && string.Equals(
-                        Path.GetExtension(Arguments[0]),
+                        Path.GetExtension(projectFileName),
                         Path.GetExtension(Constants.PackageReferenceFile), StringComparison.OrdinalIgnoreCase)))
                 {
                     // restoring from packages.config or packages.projectname.config file
                     packageRestoreInputs.PackageReferenceFiles.Add(projectFilePath);
                 }
+                else if (MsBuildUtility.IsMsBuildBasedProject(projectFileName))
+                {
+                    // For msbuild files find the project.json or packages.config file,
+                    // if neither exist skip it
+
+                    var projectName = Path.GetFileNameWithoutExtension(projectFileName);
+                    var dir = Path.GetDirectoryName(projectFilePath);
+
+                    var projectJsonPath = BuildIntegratedProjectUtility.GetProjectConfigPath(dir, projectName);
+                    var packagesConfigPath = GetPackageReferenceFile(projectFilePath);
+
+                    // Check for project.json
+                    if (File.Exists(projectJsonPath))
+                    {
+                        packageRestoreInputs.V3RestoreFiles.Add(projectFilePath);
+                    }
+                    else if (File.Exists(packagesConfigPath))
+                    {
+                        // Check for packages.config
+                        packageRestoreInputs.PackageReferenceFiles.Add(projectFilePath);
+                    }
+                }
                 else
                 {
-                    var solutionFileFullPath = GetSolutionFile(Arguments[0]);
+                    // Check if it is a solution file
+                    var solutionFileFullPath = GetSolutionFile(projectFilePath);
                     if (solutionFileFullPath == null)
                     {
                         throw new InvalidOperationException(
@@ -565,18 +592,22 @@ namespace NuGet.CommandLine
                     continue;
                 }
 
+                // packages.config
                 var packagesConfigFilePath = GetPackageReferenceFile(projectFile);
-                var projectJsonPath = Path.Combine(
-                    Path.GetDirectoryName(projectFile),
-                    PackageSpec.PackageSpecFileName);
 
-                if (File.Exists(packagesConfigFilePath))
-                {
-                    restoreInputs.PackageReferenceFiles.Add(packagesConfigFilePath);
-                }
-                else if (File.Exists(projectJsonPath))
+                // project.json
+                var dir = Path.GetDirectoryName(projectFile);
+                var projectName = Path.GetFileNameWithoutExtension(projectFile);
+                var projectJsonPath = BuildIntegratedProjectUtility.GetProjectConfigPath(dir, projectName);
+
+                // project.json overrides packages.config
+                if (File.Exists(projectJsonPath))
                 {
                     restoreInputs.V3RestoreFiles.Add(projectFile);
+                }
+                else if (File.Exists(packagesConfigFilePath))
+                {
+                    restoreInputs.PackageReferenceFiles.Add(packagesConfigFilePath);
                 }
             }
         }
