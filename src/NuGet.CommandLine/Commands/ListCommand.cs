@@ -87,7 +87,6 @@ namespace NuGet.Commands
                                 .ToList();
 
             var repository = new AggregateRepository(repositories);
-            //repository.Logger = Console;
             return repository;
         }
 
@@ -127,8 +126,11 @@ namespace NuGet.Commands
             var listEndpoints = new List<string>();
             foreach(var listCommandResource in listCommandResources)
             {
-                var listEndpoint = await listCommandResource.GetListEndpointAsync(CancellationToken.None);
-                listEndpoints.Add(listEndpoint);
+                var listEndpoint = listCommandResource.GetListEndpoint();
+                if (listEndpoint != null)
+                {
+                    listEndpoints.Add(listEndpoint);
+                }
             }
 
             return listEndpoints;
@@ -165,7 +167,7 @@ namespace NuGet.Commands
                         Console.PrintJustified(0, p.Id);
                         Console.PrintJustified(1, p.Version.ToString());
                         Console.PrintJustified(1, p.Description);
-                        if (p.LicenseUrl != null && !string.IsNullOrEmpty(p.LicenseUrl.OriginalString))
+                        if (!string.IsNullOrEmpty(p.LicenseUrl?.OriginalString))
                         {
                             Console.PrintJustified(1,
                                 string.Format(
