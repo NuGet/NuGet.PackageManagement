@@ -4,6 +4,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Protocol.Core.Types;
@@ -19,6 +20,7 @@ namespace NuGet.CommandLine
         protected Command()
         {
             Arguments = new List<string>();
+            _credentialRequested = new HashSet<Uri>();
         }
 
         public IList<string> Arguments { get; private set; }
@@ -46,6 +48,9 @@ namespace NuGet.CommandLine
 
         [Option(typeof(NuGetCommand), "Option_ConfigFile")]
         public string ConfigFile { get; set; }
+
+        // Used to check if credential has been requested for a uri. 
+        private readonly HashSet<Uri> _credentialRequested;
 
         public string CurrentDirectory
         {
@@ -151,6 +156,30 @@ namespace NuGet.CommandLine
             {
                 // add the proxy to v2 proxy cache.
                 v2ProxyCache?.Add(proxy);
+            };
+            
+            NuGet.Protocol.Core.v3.HttpHandlerResourceV3.PromptForCredentials = uri =>
+            {
+                bool retrying = _credentialRequested.Contains(uri);
+
+                // Add uri to the hash set so that the next time we know the credentials for this
+                // uri has been requested before. In this case, NuGet will ask user for credentials.
+                if (!retrying)
+                {
+                    _credentialRequested.Add(uri);
+                }
+
+                return credentialProvider.GetCredentials(
+                    uri,
+                    proxy: null,
+                    credentialType: CredentialType.RequestCredentials,
+                    retrying: retrying);
+            };
+
+            NuGet.Protocol.Core.v3.HttpHandlerResourceV3.CredentialsSuccessfullyUsed = (uri, credentials) =>
+            {
+                NuGet.CredentialStore.Instance.Add(uri, credentials);
+                NuGet.Configuration.CredentialStore.Instance.Add(uri, credentials);
             };
         }
 
