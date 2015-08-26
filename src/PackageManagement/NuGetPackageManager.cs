@@ -1370,6 +1370,14 @@ namespace NuGet.PackageManagement
                 rawPackageSpec = JObject.Load(reader);
             }
 
+            // For installs only use cache entries newer than the current time.
+            // This is needed for scenarios where a new package shows up in search
+            // but a previous cache entry does not yet have it.
+            var cacheContext = new SourceCacheContext()
+            {
+                ListMaxAge = DateTimeOffset.UtcNow
+            };
+
             var logger = new ProjectContextLogger(nuGetProjectContext);
 
             var effectiveGlobalPackagesFolder = BuildIntegratedProjectUtility.GetEffectiveGlobalPackagesFolder(
@@ -1390,6 +1398,7 @@ namespace NuGet.PackageManagement
                     logger,
                     sources,
                     effectiveGlobalPackagesFolder,
+                    cacheContext,
                     token);
 
                 originalLockFile = originalRestoreResult.LockFile;
@@ -1419,6 +1428,7 @@ namespace NuGet.PackageManagement
                 logger,
                 sources,
                 effectiveGlobalPackagesFolder,
+                cacheContext,
                 token);
 
             return new BuildIntegratedProjectAction(nuGetProjectActions.First().PackageIdentity,

@@ -10,12 +10,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Commands;
-using NuGet.Configuration;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.ProjectManagement;
 using NuGet.ProjectManagement.Projects;
 using NuGet.ProjectModel;
+using NuGet.Protocol.Core.Types;
 
 namespace NuGet.PackageManagement
 {
@@ -41,6 +41,7 @@ namespace NuGet.PackageManagement
                 logger,
                 sources,
                 effectiveGlobalPackagesFolder,
+                new SourceCacheContext(),
                 token);
 
             // Throw before writing if this has been canceled
@@ -61,6 +62,7 @@ namespace NuGet.PackageManagement
             Logging.ILogger logger,
             IEnumerable<string> sources,
             string effectiveGlobalPackagesFolder,
+            SourceCacheContext cacheContext,
             CancellationToken token)
         {
             // Restoring packages
