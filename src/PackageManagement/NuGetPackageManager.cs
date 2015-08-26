@@ -1548,14 +1548,21 @@ namespace NuGet.PackageManagement
                 // Restore parent projects. These will be updated to include the transitive changes.
                 var parents = await BuildIntegratedRestoreUtility.GetParentProjectsInClosure(SolutionManager, buildIntegratedProject);
 
+                var cacheContext = new SourceCacheContext()
+                {
+                    ListMaxAge = DateTimeOffset.UtcNow
+                };
+
                 foreach (var parent in parents)
                 {
                     // Restore and commit the lock file to disk regardless of the result
                     var parentResult = await BuildIntegratedRestoreUtility.RestoreAsync(
                         parent,
+                        parent.PackageSpec,
                         logger,
                         projectAction.Sources,
                         effectiveGlobalPackagesFolder,
+                        cacheContext,
                         token);
                 }
             }

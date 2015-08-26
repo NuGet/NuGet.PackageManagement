@@ -73,6 +73,7 @@ namespace NuGet.PackageManagement
             var packageSources = sources.Select(source => new Configuration.PackageSource(source));
             var request = new RestoreRequest(packageSpec, packageSources, effectiveGlobalPackagesFolder);
             request.MaxDegreeOfConcurrency = PackageManagementConstants.DefaultMaxDegreeOfParallelism;
+            request.CacheContext = cacheContext;
 
             // Add the existing lock file if it exists
             var lockFilePath = BuildIntegratedProjectUtility.GetLockFilePath(project.JsonConfigPath);
