@@ -533,9 +533,12 @@ namespace NuGet.CommandLine.Test
             Assert.True(0 == r.Item1, r.Item2 + " " + r.Item3);
             Assert.True(File.Exists(targetFilePath));
 
-            var targetsFile = File.OpenText(targetFilePath).ReadToEnd();
-            Assert.True(targetsFile.IndexOf(@"build\uap\packageA.targets") > -1);
-            Assert.True(targetsFile.IndexOf(@"build\uap\packageB.targets") > -1);
+            using (var stream = File.OpenText(targetFilePath))
+            {
+                var targetsFile = stream.ReadToEnd();
+                Assert.True(targetsFile.IndexOf(@"build\uap\packageA.targets") > -1);
+                Assert.True(targetsFile.IndexOf(@"build\uap\packageB.targets") > -1);
+            }
 
             // Act 2
             r = CommandRunner.Run(
@@ -548,9 +551,12 @@ namespace NuGet.CommandLine.Test
             Assert.True(0 == r.Item1, r.Item2 + " " + r.Item3);
             Assert.True(File.Exists(targetFilePath));
 
-            targetsFile = File.OpenText(targetFilePath).ReadToEnd();
-            Assert.True(targetsFile.IndexOf(@"build\uap\packageA.targets") > -1);
-            Assert.True(targetsFile.IndexOf(@"build\uap\packageB.targets") > -1);
+            using (var stream = File.OpenText(targetFilePath))
+            {
+                var targetsFile = stream.ReadToEnd();
+                Assert.True(targetsFile.IndexOf(@"build\uap\packageA.targets") > -1);
+                Assert.True(targetsFile.IndexOf(@"build\uap\packageB.targets") > -1);
+            }
 
             // Act 3
             r = CommandRunner.Run(
@@ -563,9 +569,12 @@ namespace NuGet.CommandLine.Test
             Assert.True(0 == r.Item1, r.Item2 + " " + r.Item3);
             Assert.True(File.Exists(targetFilePath));
 
-            targetsFile = File.OpenText(targetFilePath).ReadToEnd();
-            Assert.True(targetsFile.IndexOf(@"build\uap\packageA.targets") > -1);
-            Assert.True(targetsFile.IndexOf(@"build\uap\packageB.targets") > -1);
+            using (var stream = File.OpenText(targetFilePath))
+            {
+                var targetsFile = stream.ReadToEnd();
+                Assert.True(targetsFile.IndexOf(@"build\uap\packageA.targets") > -1);
+                Assert.True(targetsFile.IndexOf(@"build\uap\packageB.targets") > -1);
+            }
         }
 
         [Fact]
