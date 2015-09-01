@@ -910,13 +910,11 @@ namespace NuGet.CommandLine.Test
                 using (var serverV3 = new MockServer())
                 {
                     var registrationEndPoint = serverV3.Uri + "w";
-                    var indexJson = JObject.Parse(@"{
-                  ""version"": ""3.2.0"",
-                  ""resources"": [ {""@id"": """ + registrationEndPoint + @""", ""@type"": ""RegistrationsBaseUrl/3.0.0-beta""} ],
-                ""@context"": {
-                ""@vocab"": ""http://schema.nuget.org/services#"",
-                ""comment"": ""http://www.w3.org/2000/01/rdf-schema#comment""
-                    }}");
+                    var indexJson = Util.CreateIndexJson();
+
+                    // add registration resource
+                    var resources = (JArray)indexJson["resources"];
+                    resources.Add(JObject.Parse(@"{""@id"": """ + registrationEndPoint + @""", ""@type"": ""RegistrationsBaseUrl/3.0.0-beta""}"));
 
                     serverV3.Get.Add("/a/b/c/index.json", r =>
                     {
@@ -930,7 +928,7 @@ namespace NuGet.CommandLine.Test
                             return new Action<HttpListenerResponse>(response =>
                             {
                                 response.StatusCode = (int)HttpStatusCode.OK;
-                                response.ContentType = "text/javascript";
+                                response.ContentType = "application/json";
                                 MockServer.SetResponseContent(response, indexJson.ToString());
                             });
                         }
