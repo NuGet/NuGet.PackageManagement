@@ -911,10 +911,7 @@ namespace NuGet.CommandLine.Test
                 {
                     var registrationEndPoint = serverV3.Uri + "w";
                     var indexJson = Util.CreateIndexJson();
-
-                    // add registration resource
-                    var resources = (JArray)indexJson["resources"];
-                    resources.Add(JObject.Parse(@"{""@id"": """ + registrationEndPoint + @""", ""@type"": ""RegistrationsBaseUrl/3.0.0-beta""}"));
+                    Util.AddRegistrationResource(indexJson, serverV3);
 
                     serverV3.Get.Add("/a/b/c/index.json", r =>
                     {
@@ -942,7 +939,7 @@ namespace NuGet.CommandLine.Test
                         }
                     });
 
-                    serverV3.Get.Add("/w/test_package/index.json", r =>
+                    serverV3.Get.Add("/reg/test_package/index.json", r =>
                     {
                         var h = r.Headers["Authorization"];
                         var credential = String.IsNullOrEmpty(h) ?
