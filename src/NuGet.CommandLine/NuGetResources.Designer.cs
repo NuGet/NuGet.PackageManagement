@@ -5947,6 +5947,24 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MSBuild auto-detection: using msbuild version &apos;{0}&apos; from &apos;{1}&apos;..
+        /// </summary>
+        public static string MSBuildAutoDetection {
+            get {
+                return ResourceManager.GetString("MSBuildAutoDetection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSBuild auto-detection: using msbuild version &apos;{0}&apos; from &apos;{1}&apos;. Use option -MSBuildVersion to force nuget to use a specific version of MSBuild..
+        /// </summary>
+        public static string MSBuildAutoDetection_Verbose {
+            get {
+                return ResourceManager.GetString("MSBuildAutoDetection_Verbose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to MsBuild.exe does not exist at &apos;{0}&apos;..
         /// </summary>
         public static string MsBuildDoesNotExistAtPath {
