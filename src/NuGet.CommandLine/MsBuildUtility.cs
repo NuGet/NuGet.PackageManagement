@@ -119,46 +119,13 @@ namespace NuGet.CommandLine
         {
             if (string.IsNullOrEmpty(version))
             {
-                // default to 4.0
-                version = "4.0";
-
-                // run msbuild to get the version
-                var processStartInfo = new ProcessStartInfo
+                // use the highest installed version
+                using (var projectCollection = new ProjectCollection())
                 {
-                    UseShellExecute = false,
-                    FileName = "msbuild.exe",
-                    Arguments = "/version",
-                    RedirectStandardOutput = true
-                };
-
-                try
-                {
-                    using (var process = Process.Start(processStartInfo))
-                    {
-                        process.WaitForExit(10 * 1000);
-
-                        if (process.ExitCode == 0)
-                        {
-                            var output = process.StandardOutput.ReadToEnd();
-
-                            // The output of msbuid /version with MSBuild 14 is:
-                            //
-                            // Microsoft (R) Build Engine version 14.0.23107.0
-                            // Copyright(C) Microsoft Corporation. All rights reserved.
-                            //
-                            // 14.0.23107.0                            
-                            var lines = output.Split(
-                                new[] { Environment.NewLine },
-                                StringSplitOptions.RemoveEmptyEntries);
-
-                            version = lines.LastOrDefault(
-                                line => !string.IsNullOrWhiteSpace(line));
-                        }
-                    }
-                }
-                catch
-                {
-                    // ignore errors
+                    var highestVersionToolset = projectCollection.Toolsets
+                        .OrderByDescending(toolset => new Version(toolset.ToolsVersion))
+                        .First();
+                    return highestVersionToolset.ToolsPath;
                 }
             }
 
