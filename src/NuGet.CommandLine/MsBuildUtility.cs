@@ -150,7 +150,7 @@ namespace NuGet.CommandLine
                             new[] { Environment.NewLine },
                             StringSplitOptions.RemoveEmptyEntries);
 
-                        string versionString = lines.LastOrDefault(
+                        var versionString = lines.LastOrDefault(
                             line => !string.IsNullOrWhiteSpace(line));
                         Version version;
                         if (Version.TryParse(versionString, out version))
@@ -183,7 +183,7 @@ namespace NuGet.CommandLine
             if (msbuildVersion == null)
             {
                 // MSBuild does not exist in PATH. In this case, the highest installed version is used
-                selectedToolset = installedToolsets.First();
+                selectedToolset = installedToolsets.FirstOrDefault();
             }
             else
             {
@@ -209,8 +209,15 @@ namespace NuGet.CommandLine
                 if (selectedToolset == null)
                 {
                     // still no match. Use the highest installed version in this case
-                    selectedToolset = installedToolsets.First();
+                    selectedToolset = installedToolsets.FirstOrDefault();
                 }
+            }
+
+            if (selectedToolset == null)
+            {
+                throw new CommandLineException(
+                    LocalizedResourceManager.GetString(
+                            nameof(NuGetResources.Error_MSBuildNotInstalled)));
             }
 
             return selectedToolset;

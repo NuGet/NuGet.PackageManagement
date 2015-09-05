@@ -2752,6 +2752,15 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MSBuild is not installed..
+        /// </summary>
+        public static string Error_MSBuildNotInstalled {
+            get {
+                return ResourceManager.GetString("Error_MSBuildNotInstalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This folder contains more than one solution file..
         /// </summary>
         public static string Error_MultipleSolutions {
