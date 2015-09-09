@@ -43,6 +43,9 @@ namespace NuGet.CommandLine
         [Option(typeof(NuGetCommand), "InstallCommandSolutionDirectory")]
         public string SolutionDirectory { get; set; }
 
+        [Option(typeof(NuGetCommand), "InstallCommandDownloadTimeout")]
+        public int Timeout { get; set; }
+
         private bool AllowMultipleVersions
         {
             get { return !ExcludeVersion; }
@@ -189,6 +192,15 @@ namespace NuGet.CommandLine
             var packageManager = new NuGetPackageManager(sourceRepositoryProvider, Settings, installPath);
 
             var primaryRepositories = GetPackageSources(Settings).Select(sourceRepositoryProvider.CreateRepository);
+
+            // Override the download timeout for package sources if -Timeout is specified
+            if (Timeout > 0)
+            {
+                foreach (var repo in primaryRepositories)
+                {
+                    repo.PackageSource.DownloadTimeout = TimeSpan.FromSeconds(Timeout);
+                }
+            }
 
             var resolutionContext = new ResolutionContext(
                         DependencyBehavior.Lowest,

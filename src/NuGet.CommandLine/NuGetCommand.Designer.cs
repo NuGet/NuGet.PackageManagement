@@ -3346,6 +3346,15 @@ namespace NuGet.CommandLine {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Specifies the timeout for an individual package download in seconds..
+        /// </summary>
+        internal static string InstallCommandDownloadTimeout {
+            get {
+                return ResourceManager.GetString("InstallCommandDownloadTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to If set, the destination folder will contain only the package name, not the version number.
         /// </summary>
         internal static string InstallCommandExcludeVersionDescription {
@@ -9689,6 +9698,15 @@ namespace NuGet.CommandLine {
         internal static string RestoreCommandDisableParallelProcessing_trk {
             get {
                 return ResourceManager.GetString("RestoreCommandDisableParallelProcessing_trk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specifies the timeout for an individual package download in seconds..
+        /// </summary>
+        internal static string RestoreCommandDownloadTimeout {
+            get {
+                return ResourceManager.GetString("RestoreCommandDownloadTimeout", resourceCulture);
             }
         }
         

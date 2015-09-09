@@ -36,6 +36,9 @@ namespace NuGet.CommandLine
         [Option(typeof(NuGetCommand), "CommandMSBuildVersion")]
         public string MSBuildVersion { get; set; }
 
+        [Option(typeof(NuGetCommand), "RestoreCommandDownloadTimeout")]
+        public int Timeout { get; set; }
+
         [ImportingConstructor]
         public RestoreCommand()
             : base(MachineCache.Default)
@@ -209,6 +212,16 @@ namespace NuGet.CommandLine
             Console.LogVerbose($"Using packages directory: {packagesDir}");
 
             var packageSources = GetPackageSources(Settings);
+             
+            // Override the download timeout for package sources if -Timeout is specified
+            if (Timeout > 0)
+            {
+                foreach (var packageSource in packageSources)
+                {
+                    packageSource.DownloadTimeout = TimeSpan.FromSeconds(Timeout);
+                }
+            }
+
             var request = new RestoreRequest(
                 packageSpec,
                 packageSources);

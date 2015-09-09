@@ -5245,4 +5245,10 @@ nuget update -Self</value>
   <data name="CommandMSBuildVersion" xml:space="preserve">
     <value>Specifies the version of MSBuild to be used with this command. Supported values are 4, 12, 14. By default the MSBuild in your path is picked, otherwise it defaults to the highest installed version of MSBuild.</value>
   </data>
+  <data name="InstallCommandDownloadTimeout" xml:space="preserve">
+    <value>Specifies the timeout for an individual package download in seconds.</value>
+  </data>
+  <data name="RestoreCommandDownloadTimeout" xml:space="preserve">
+    <value>Specifies the timeout for an individual package download in seconds.</value>
+  </data>
 </root>
