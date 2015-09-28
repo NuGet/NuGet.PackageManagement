@@ -86,7 +86,7 @@ namespace NuGet.CommandLine
                 {
                     if (DisableParallelProcessing)
                     {
-                        await PerformNuGetV3RestoreAsync(packagesDir, file);
+                        restoreResult &= await PerformNuGetV3RestoreAsync(packagesDir, file);
                     }
                     else
                     {
