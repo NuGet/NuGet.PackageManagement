@@ -308,7 +308,7 @@ namespace NuGet.CommandLine
             {
                 installedPackageReferences.AddRange(packageRestoreInputs
                     .PackageReferenceFiles
-                    .SelectMany(GetInstalledPackageReferences));
+                    .SelectMany(file => GetInstalledPackageReferences(file, allowDuplicatePackageIds: true)));
             }
             else if (packageRestoreInputs.PackageReferenceFiles.Count > 0)
             {
@@ -330,7 +330,8 @@ namespace NuGet.CommandLine
                     throw new InvalidOperationException(message);
                 }
 
-                installedPackageReferences.AddRange(GetInstalledPackageReferences(packageReferenceFile));
+                installedPackageReferences.AddRange(
+                    GetInstalledPackageReferences(packageReferenceFile, allowDuplicatePackageIds: true));
             }
 
             var missingPackageReferences = installedPackageReferences.Where(reference =>
